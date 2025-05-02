@@ -2,6 +2,10 @@
 #include "BL2GLWidget.h"
 #include "model.h"
 
+#define TERRA_SIZE 10
+#define TERRA_COLOR_CLAR glm::vec3(1,1,1)
+#define TERRA_COLOR_FOSC glm::vec3(0.105, 0.058, 0.5)
+
 class MyGLWidget : public BL2GLWidget {
   Q_OBJECT
 
@@ -44,15 +48,66 @@ class MyGLWidget : public BL2GLWidget {
     GLuint colorLocTerra;
 
     //Terra
-    glm::vec3 posicio[6] = {
-        glm::vec3(2.5, 0, 2.5),
-        glm::vec3(-2.5, 0, -2.5),
-        glm::vec3(-2.5, 0, 2.5),
+    glm::vec3 posicio[24] = {
+        glm::vec3(0, 0, 0),
+        glm::vec3(0, 0, TERRA_SIZE),
+        glm::vec3(-TERRA_SIZE, 0, TERRA_SIZE),
 
-        glm::vec3(2.5, 0, 2.5),
-        glm::vec3(2.5, 0, -2.5),
-        glm::vec3(-2.5, 0, -2.5)
+        glm::vec3(0, 0, 0),
+        glm::vec3(-TERRA_SIZE, 0, 0),
+        glm::vec3(-TERRA_SIZE, 0, TERRA_SIZE),
+
+        glm::vec3(0, 0, 0),
+        glm::vec3(0, 0, TERRA_SIZE),
+        glm::vec3(TERRA_SIZE, 0, TERRA_SIZE),
+
+        glm::vec3(0, 0, 0),
+        glm::vec3(TERRA_SIZE, 0, 0),
+        glm::vec3(TERRA_SIZE, 0, TERRA_SIZE),
+
+        glm::vec3(0, 0, 0),
+        glm::vec3(0, 0, -TERRA_SIZE),
+        glm::vec3(TERRA_SIZE, 0, -TERRA_SIZE),
+
+        glm::vec3(0, 0, 0),
+        glm::vec3(TERRA_SIZE, 0, 0),
+        glm::vec3(TERRA_SIZE, 0, -TERRA_SIZE),
+
+        glm::vec3(0, 0, 0),
+        glm::vec3(0, 0, -TERRA_SIZE),
+        glm::vec3(-TERRA_SIZE, 0, -TERRA_SIZE),
+
+        glm::vec3(0, 0, 0),
+        glm::vec3(-TERRA_SIZE, 0, 0),
+        glm::vec3(-TERRA_SIZE, 0, -TERRA_SIZE)
     }; 
+
+    glm::vec3 color[24] = {
+        TERRA_COLOR_CLAR,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_CLAR,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_CLAR,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_CLAR,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_CLAR,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_CLAR,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_CLAR,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_CLAR,
+        TERRA_COLOR_FOSC,
+        TERRA_COLOR_FOSC,
+    };
 
     glm::vec3 centre;
     float radi;
@@ -69,7 +124,7 @@ class MyGLWidget : public BL2GLWidget {
     float FOV_ORIGINAL = -1;
     float FOV;
     float ZNEAR;
-    float ZFAR;
+    float ZFAR = 100;
     float D = 0;
 
     float zoomValue = 1;
@@ -82,4 +137,5 @@ class MyGLWidget : public BL2GLWidget {
     float cam_Rot_Euler_Z = 0;
 
     float rotationY = 0;
+    float escala = 1;
 };

@@ -120,7 +120,7 @@ void MyGLWidget::paintGL ()
 
   modelTransform ();
   glBindVertexArray (VAO_Terra);
-  glDrawArrays(GL_TRIANGLES, 0, 6);
+  glDrawArrays(GL_TRIANGLES, 0, 24);
   glBindVertexArray (0);
 }
 
@@ -153,15 +153,6 @@ void MyGLWidget::creaBuffers ()
     // Dades del terra
     // Dos VBOs, un amb posició i l'altre amb color
 
-    glm::vec3 color[6] = {
-        glm::vec3(1,0,0),
-        glm::vec3(0,1,0),
-        glm::vec3(0,0,1),
-        glm::vec3(1,0,0),
-        glm::vec3(0,0,1),
-        glm::vec3(0,1,0),
-    };
-
     // Creació del Vertex Array Object per pintar
     glGenVertexArrays(1, &VAO_Terra);
     glBindVertexArray(VAO_Terra);
@@ -188,7 +179,7 @@ void MyGLWidget::creaBuffers ()
 void MyGLWidget::initializeGL() {
     initializeOpenGLFunctions(); 
 
-    glClearColor(0.5, 0.7, 1.0, 1.0); // defineix color de fons (d'esborrat)
+    glClearColor(0.105, 0.058, 0.5, 1.0); // defineix color de fons (d'esborrat)
 
     glEnable(GL_DEPTH_TEST);
 
@@ -228,7 +219,6 @@ void MyGLWidget::ini_camera()
     if (FOV_ORIGINAL == -1) FOV_ORIGINAL = FOV;
     
     ZNEAR = D - radi;
-    ZFAR = D + radi;
 
     projectTransform();
 }
@@ -266,7 +256,7 @@ void MyGLWidget::modelTransformModel ()
   glm::mat4 transform (1.0f);
   transform = glm::rotate(transform, rotationY, glm::vec3(0,1,0));
   transform = glm::translate(transform, glm::vec3(-centreX, -centreY + (modelMax.y - modelMin.y) / 1.44, -centreZ));
-  transform = glm::scale(transform, glm::vec3(4/sizeY));
+  transform = glm::scale(transform, glm::vec3(escala/sizeY));
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
