@@ -62,8 +62,6 @@ class MyGLWidget : public BL2GLWidget {
 
     float RA = 1.f;
 
-    bool ortogonal = false;
-
     glm::vec3 VRP;
     glm::vec3 OBS;
     glm::vec3 UP;
@@ -82,16 +80,6 @@ class MyGLWidget : public BL2GLWidget {
     float cam_Rot_Euler_X = 0;
     float cam_Rot_Euler_Y = 0;
     float cam_Rot_Euler_Z = 0;
-
-    const float L_ORIGINAL = -2.5;
-    const float R_ORIGINAL = 2.5;
-    const float B_ORIGINAL = -0.5 - 2;
-    const float T_ORIGINAL = 4.5 - 2;
-
-    float L = L_ORIGINAL;
-    float R = R_ORIGINAL;
-    float B = B_ORIGINAL;
-    float T = T_ORIGINAL;
 
     float rotationY = 0;
 };

@@ -85,11 +85,6 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
       rotationY += .1;
       break;
     }
-    case Qt::Key_O: {
-        ortogonal = !ortogonal;
-        ini_camera();
-        break;
-    }
     case Qt::Key_Z: {
         zoomValue -= 0.01;
         if (zoomValue < 0) zoomValue = 0;
@@ -224,22 +219,10 @@ void MyGLWidget::ini_camera()
 
     viewTransform(OBS, VRP, UP);
 
-    L = L_ORIGINAL * zoomValue;
-    R = R_ORIGINAL * zoomValue;
-    B = B_ORIGINAL * zoomValue;
-    T = T_ORIGINAL * zoomValue;
-
     if (RA > 1) {
         FOV = 2 * asin(radi/D * zoomValue);
-
-        L = -2.5 * RA * zoomValue;
-        R = 2.5 * RA * zoomValue;
-
     } else {
         FOV = 2 * atan(tan(FOV_ORIGINAL/2)/RA * zoomValue);
-
-        B = -2.5 * 1/RA * zoomValue;
-        T = 2.5 * 1/RA * zoomValue;
     }
 
     if (FOV_ORIGINAL == -1) FOV_ORIGINAL = FOV;
@@ -288,13 +271,8 @@ void MyGLWidget::modelTransformModel ()
 }
 
 void MyGLWidget::projectTransform() {
-    if (ortogonal) {
-        glm::mat4 Proj = glm::ortho(L, R, B, T, ZNEAR, ZFAR);
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, &Proj[0][0]);
-    } else {
-        glm::mat4 Proj = glm::perspective(FOV, RA, ZNEAR, ZFAR);
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, &Proj[0][0]);
-    }
+    glm::mat4 Proj = glm::perspective(FOV, RA, ZNEAR, ZFAR);
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, &Proj[0][0]);
 }
 
 void MyGLWidget::viewTransform(glm::vec3 OBS, glm::vec3 VRP, glm::vec3 UP) {
