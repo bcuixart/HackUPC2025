@@ -1,4 +1,5 @@
 *.o
+*.ui
 moc_predefs.h
 moc_MyForm.cpp
 moc_BL2GLWidget.cpp

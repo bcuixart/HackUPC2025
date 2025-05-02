@@ -34,6 +34,7 @@ class MyGLWidget : public BL2GLWidget {
     Model m;
     
     GLuint projLoc;
+    GLuint normalLoc;
     GLuint viewLoc;
     GLuint VAO_Model;
     GLuint VAO_Terra;
@@ -84,6 +85,11 @@ class MyGLWidget : public BL2GLWidget {
     const float R_ORIGINAL = 2.5;
     const float B_ORIGINAL = -0.5 - 2;
     const float T_ORIGINAL = 4.5 - 2;
+
+    struct Llum {
+      glm::vec3 pos;
+      glm::vec3 I_color;
+    }
 
     float L = L_ORIGINAL;
     float R = R_ORIGINAL;

@@ -145,14 +145,21 @@ void MyGLWidget::creaBuffers ()
     glGenVertexArrays(1, &VAO_Model);
     glBindVertexArray(VAO_Model);
 
-    GLuint VBO_Model[2];
-    glGenBuffers(2, VBO_Model);
+    GLuint VBO_Model[3];
+    glGenBuffers(3, VBO_Model);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_vertices(), GL_STATIC_DRAW);
 
     // Activem l'atribut vertexLoc
     glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(vertexLoc);
+
+    //
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size()*3*3, m.VBO_normals(), GL_STATIC_DRAW);
+    
+    glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(normalLoc);
+    
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_matdiff(), GL_STATIC_DRAW);
@@ -188,6 +195,8 @@ void MyGLWidget::creaBuffers ()
     glVertexAttribPointer(vertexLocTerra, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(vertexLocTerra);
 
+    
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Terra[1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
 
@@ -196,6 +205,8 @@ void MyGLWidget::creaBuffers ()
     glEnableVertexAttribArray(colorLocTerra);
 
     glBindVertexArray (0);
+
+
 }
 
 void MyGLWidget::initializeGL() {
@@ -273,6 +284,8 @@ void MyGLWidget::modelMinMax() {
         if (m.vertices()[i+2] > modelMax.z) modelMax.z = m.vertices()[i+2];
     }
 }
+
+
 
 void MyGLWidget::modelTransform () 
 {
