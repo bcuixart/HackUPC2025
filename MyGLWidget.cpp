@@ -81,14 +81,6 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
 {
   makeCurrent();
   switch (event->key()) {
-    case Qt::Key_S: { // escalar a més gran
-      escala += 0.05;
-      break;
-    }
-    case Qt::Key_D: { // escalar a més petit
-      escala -= 0.05;
-      break;
-    }
     case Qt::Key_R: {
       rotationY += .1;
       break;
@@ -208,8 +200,6 @@ void MyGLWidget::initializeGL() {
     carregaShaders();
     creaBuffers();
     ini_camera();
-
-    escala = 1.0f;
 }
 
 void MyGLWidget::carregaShaders() {
@@ -276,10 +266,8 @@ void MyGLWidget::modelMinMax() {
 
 void MyGLWidget::modelTransform () 
 {
-
   // Matriu de transformació de model
   glm::mat4 transform (1.0f);
-  transform = glm::scale(transform, glm::vec3(escala));
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
@@ -293,7 +281,6 @@ void MyGLWidget::modelTransformModel ()
 
   // Matriu de transformació de model
   glm::mat4 transform (1.0f);
-  transform = glm::scale(transform, glm::vec3(escala));
   transform = glm::rotate(transform, rotationY, glm::vec3(0,1,0));
   transform = glm::translate(transform, glm::vec3(-centreX, -centreY + (modelMax.y - modelMin.y) / 1.44, -centreZ));
   transform = glm::scale(transform, glm::vec3(4/sizeY));

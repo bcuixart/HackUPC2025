@@ -12,17 +12,20 @@ class MyGLWidget : public BL2GLWidget {
   private:
     int printOglError(const char file[], int line, const char func[]);
 
+    void carregaShaders();
     virtual void creaBuffers ();
     virtual void initializeGL();
     virtual void paintGL();
+
+    virtual void resizeGL (int width, int height);
+
     virtual void keyPressEvent(QKeyEvent* event);
     virtual void mouseMoveEvent(QMouseEvent* event);
     virtual void mousePressEvent(QMouseEvent* event);
+
     virtual void modelTransform();
-    virtual void resizeGL (int width, int height);
     void modelTransformModel();
 
-    void carregaShaders();
     void projectTransform();
     void viewTransform(glm::vec3 OBS, glm::vec3 VRP, glm::vec3 UP);
 
