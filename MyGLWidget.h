@@ -18,6 +18,7 @@ class MyGLWidget : public BL2GLWidget {
   public slots:
     void heartbeat();
     void QuestionProcedure();
+    void StartWidget();
 
   private:
     int printOglError(const char file[], int line, const char func[]);
@@ -153,7 +154,7 @@ class MyGLWidget : public BL2GLWidget {
     int mousePosPrevX = 0;
     int mousePosPrevY = 0;
 
-    float cam_Rot_Euler_X = 160;
+    float cam_Rot_Euler_X = -160;
     float cam_Rot_Euler_Y = -155;
     float cam_Rot_Euler_Z = 0;
 

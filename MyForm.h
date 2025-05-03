@@ -9,12 +9,15 @@ class MyForm : public QWidget
     MyForm (QWidget *parent=0);
     int pagina;
 
+  public slots:
+    void pas();
+
   private slots:        // nou
-    void goToImagePage();
+    void goToStartPage();
     void goToEndPage();
   
   private:
     Ui::MyForm ui;
-    QTimer *timer; // nout
+    QTimer *timer; // nou
 };
 

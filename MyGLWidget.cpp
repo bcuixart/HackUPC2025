@@ -8,6 +8,15 @@
 #define DEBUG() std::cout << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
 
 MyGLWidget::MyGLWidget(QWidget *parent=0) : BL2GLWidget(parent) {
+
+
+
+}
+
+void MyGLWidget::StartWidget() 
+{
+    cout << "Caca" << endl;
+
   connect(&timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
   timer.start(10);
 
@@ -88,6 +97,7 @@ void MyGLWidget::mousePressEvent(QMouseEvent* event)
 
 void MyGLWidget::mouseMoveEvent(QMouseEvent* event) 
 {
+/*
     makeCurrent();
     if (!testActive && event->buttons() == Qt::LeftButton && !(event->modifiers() & (Qt::ShiftModifier | Qt::AltModifier | Qt::ControlModifier))) 
     {
@@ -108,6 +118,7 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent* event)
         ini_camera();
         update();
     }
+*/
 }
 
 void MyGLWidget::keyPressEvent(QKeyEvent* event) 
@@ -169,10 +180,14 @@ void MyGLWidget::paintGL ()
   glUniform1f(ondulacionsWaveSpeed, 1);
 
   modelTransformBackground (posicioBackgroundBase, escalaBackgroundBase);
+  glm::vec3 wC = glm::vec3(0.105, 0.058, 0.5);
+  glUniform3fv(ondulacionsWaveColor, 1, &wC[0]);
+
   glBindVertexArray (VAO_Background);
   glDrawArrays(GL_TRIANGLES, 0, mBackground.faces().size() * 3);
 
-  glm::vec3 wC = glm::vec3(0,1,0);
+  // 0.105, 0.058, 0.5
+  wC = glm::vec3(0.105, 0.058, 0.5);
   glUniform1f(ondulacionsAmplitude, 1);
   glUniform1f(ondulacionsFrequency, 5);
   glUniform1f(ondulacionsWaveSpeed, -1);
