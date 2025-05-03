@@ -136,6 +136,7 @@ class MyGLWidget : public BL2GLWidget {
     float cam_Rot_Euler_Y = 0;
     float cam_Rot_Euler_Z = 0;
 
+    glm::vec3 posicioCupra = glm::vec3 (0, -1.33, 0);
     float rotationY = 0;
     float escala = 1;
 };
