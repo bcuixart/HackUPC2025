@@ -7,9 +7,11 @@ uniform mat4 TG;
 uniform mat4 PM;
 uniform mat4 VM;
 
+out vec3 fpos;
 out vec3 fcolor;
 
 void main()  {
     fcolor = color;
+    fpos = vertex;
     gl_Position = PM * VM * TG * vec4 (vertex, 1.0);
 }

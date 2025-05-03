@@ -82,19 +82,8 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
   makeCurrent();
   switch (event->key()) {
     case Qt::Key_R: {
-      rotationY += .1;
+      //rotationY += .1;
       break;
-    }
-    case Qt::Key_Z: {
-        zoomValue -= 0.01;
-        if (zoomValue < 0) zoomValue = 0;
-        ini_camera();
-        break;
-    }
-    case Qt::Key_X: {
-        zoomValue += 0.01;
-        ini_camera();
-        break;
     }
     default: event->ignore(); break;
   }
@@ -114,11 +103,11 @@ void MyGLWidget::paintGL ()
   // Esborrem el frame-buffer
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  modelTransformModel ();
+  modelTransformCupra ();
   glBindVertexArray (VAO_Model);
-  glDrawArrays(GL_TRIANGLES, 0, m.faces().size() * 3);
+  glDrawArrays(GL_TRIANGLES, 0, mCupra.faces().size() * 3);
 
-  modelTransform ();
+  modelTransformTerra ();
   glBindVertexArray (VAO_Terra);
   glDrawArrays(GL_TRIANGLES, 0, 24);
   glBindVertexArray (0);
@@ -126,7 +115,7 @@ void MyGLWidget::paintGL ()
 
 void MyGLWidget::creaBuffers () 
 {
-    m.load("./Models/Cupra.obj");
+    mCupra.load("./Models/Cupra.obj");
 
     // Creació del Vertex Array Object per pintar
     glGenVertexArrays(1, &VAO_Model);
@@ -135,21 +124,21 @@ void MyGLWidget::creaBuffers ()
     GLuint VBO_Model[3];
     glGenBuffers(3, VBO_Model);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_vertices(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size() * 3 * 3, mCupra.VBO_vertices(), GL_STATIC_DRAW);
 
     // Activem l'atribut vertexLoc
     glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(vertexLoc);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_matdiff(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size() * 3 * 3, mCupra.VBO_matdiff(), GL_STATIC_DRAW);
 
     // Activem l'atribut colorLoc
     glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(colorLoc);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[2]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size(), m.VBO_normals(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size(), mCupra.VBO_normals(), GL_STATIC_DRAW);
 
     // Activem l'atribut normalLoc
     glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -207,21 +196,18 @@ void MyGLWidget::carregaShaders() {
 
 void MyGLWidget::ini_camera() 
 {
-    modelMinMax();
-    calcularCentreRadi(glm::vec3(-2.5, 0, -2.5), glm::vec3(2.5, 4, 2.5));
-
     VRP = centre;
-    OBS = centre + glm::vec3(0,0,2*radi);
-    UP = glm::vec3(0,1,0);
+    OBS = centre + glm::vec3(0, 0, cam_Distance);
 
     D = glm::distance(VRP, OBS);
+    radi = D / 2;
 
-    viewTransform(OBS, VRP, UP);
+    viewTransform(OBS, VRP);
 
     if (RA > 1) {
-        FOV = 2 * asin(radi/D * zoomValue);
+        FOV = 2 * asin(radi/D);
     } else {
-        FOV = 2 * atan(tan(FOV_ORIGINAL/2)/RA * zoomValue);
+        FOV = 2 * atan(tan(FOV_ORIGINAL/2)/RA);
     }
 
     if (FOV_ORIGINAL == -1) FOV_ORIGINAL = FOV;
@@ -231,41 +217,20 @@ void MyGLWidget::ini_camera()
     projectTransform();
 }
 
-void MyGLWidget::modelMinMax() {
-    modelMin = glm::vec3(FLT_MAX, FLT_MAX, FLT_MAX);
-    modelMax = glm::vec3(FLT_MIN, FLT_MIN, FLT_MIN);
-    for (unsigned int i = 0; i < m.vertices().size(); i+=3) {
-        if (m.vertices()[i] < modelMin.x) modelMin.x = m.vertices()[i];
-        if (m.vertices()[i+1] < modelMin.y) modelMin.y = m.vertices()[i+1];
-        if (m.vertices()[i+2] < modelMin.z) modelMin.z = m.vertices()[i+2];
-
-        if (m.vertices()[i] > modelMax.x) modelMax.x = m.vertices()[i];
-        if (m.vertices()[i+1] > modelMax.y) modelMax.y = m.vertices()[i+1];
-        if (m.vertices()[i+2] > modelMax.z) modelMax.z = m.vertices()[i+2];
-    }
-}
-
-void MyGLWidget::modelTransform () 
+void MyGLWidget::modelTransformTerra () 
 {
   // Matriu de transformació de model
   glm::mat4 transform (1.0f);
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
-void MyGLWidget::modelTransformModel () 
+void MyGLWidget::modelTransformCupra () 
 {
-  float sizeY = abs(modelMax.y - modelMin.y);
-
-  float centreX = (modelMax.x + modelMin.x) / 2;
-  float centreY = (modelMax.y + modelMin.y) / 2;
-  float centreZ = (modelMax.z + modelMin.z) / 2;
-
   // Matriu de transformació de model
   glm::mat4 transform (1.0f);
-  transform = glm::rotate(transform, rotationY, glm::vec3(0,1,0));
+  transform = glm::rotate(transform, rotationYCupra, glm::vec3(0,1,0));
   transform = glm::translate(transform, posicioCupra);
-  transform = glm::translate(transform, glm::vec3(-centreX, -centreY + (modelMax.y - modelMin.y) / 1.44, -centreZ));
-  transform = glm::scale(transform, glm::vec3(escala/sizeY));
+  transform = glm::scale(transform, glm::vec3(escalaCupra));
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
@@ -274,7 +239,7 @@ void MyGLWidget::projectTransform() {
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, &Proj[0][0]);
 }
 
-void MyGLWidget::viewTransform(glm::vec3 OBS, glm::vec3 VRP, glm::vec3 UP) {
+void MyGLWidget::viewTransform(glm::vec3 OBS, glm::vec3 VRP) {
 
     glm::mat4 view (1.0f);
     view = glm::translate(view, glm::vec3(0,0,-glm::distance(VRP, OBS)));
@@ -284,12 +249,6 @@ void MyGLWidget::viewTransform(glm::vec3 OBS, glm::vec3 VRP, glm::vec3 UP) {
     view = glm::translate(view, -VRP);
 
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-}
-
-void MyGLWidget::calcularCentreRadi(glm::vec3 min, glm::vec3 max) {
-    centre = glm::vec3( (min.x + max.x) / 2, (min.y + max.y) / 2, (min.z + max.z) / 2);
-
-    radi = glm::distance(min, max) / 2;
 }
 
 void MyGLWidget::resizeGL (int width, int height) 
