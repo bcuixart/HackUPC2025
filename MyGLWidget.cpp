@@ -132,8 +132,8 @@ void MyGLWidget::creaBuffers ()
     glGenVertexArrays(1, &VAO_Model);
     glBindVertexArray(VAO_Model);
 
-    GLuint VBO_Model[2];
-    glGenBuffers(2, VBO_Model);
+    GLuint VBO_Model[3];
+    glGenBuffers(3, VBO_Model);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_vertices(), GL_STATIC_DRAW);
 
@@ -147,6 +147,13 @@ void MyGLWidget::creaBuffers ()
     // Activem l'atribut colorLoc
     glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(colorLoc);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size(), m.VBO_normals(), GL_STATIC_DRAW);
+
+    // Activem l'atribut normalLoc
+    glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(normalLoc);
 
     glBindVertexArray (0);
 
@@ -195,6 +202,7 @@ void MyGLWidget::carregaShaders() {
     viewLoc = glGetUniformLocation(program->programId(), "VM");
     vertexLocTerra = glGetAttribLocation (program->programId(), "vertex");
     colorLocTerra = glGetAttribLocation (program->programId(), "color");
+    normalLoc = glGetAttribLocation (program->programId(), "normal");
 }
 
 void MyGLWidget::ini_camera() 
@@ -290,4 +298,3 @@ void MyGLWidget::resizeGL (int width, int height)
 
     ini_camera();
 }
-

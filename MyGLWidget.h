@@ -44,8 +44,10 @@ class MyGLWidget : public BL2GLWidget {
     GLuint viewLoc;
     GLuint VAO_Model;
     GLuint VAO_Terra;
+    GLuint normalLoc;
     GLuint vertexLocTerra;
     GLuint colorLocTerra;
+    GLuint normalLocTerra;
 
     //Terra
     glm::vec3 posicio[24] = {
