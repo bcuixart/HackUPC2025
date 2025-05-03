@@ -129,6 +129,9 @@ void MyGLWidget::paintGL ()
 
   modelTransformModel ();
   glBindVertexArray (VAO_Model);
+  
+  glm::vec3 l_pos(0.0,10.0,0.0);
+  glUniform1fv(lightposLoc, 1, &l_pos[0]);
   glDrawArrays(GL_TRIANGLES, 0, m.faces().size() * 3);
 
   modelTransform ();
@@ -227,6 +230,8 @@ void MyGLWidget::creaBuffers ()
     glEnableVertexAttribArray(colorLocTerra);
 
     glBindVertexArray (0);
+
+    
 
 
 }

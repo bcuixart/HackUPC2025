@@ -19,7 +19,11 @@ uniform mat4 VM;
 out vec3 fcolor;
 out vec3 n_vec;
 
+
+
+
 void main()  {
-    fcolor = matdiff;
+
+    fcolor = matdiff*dot(normal, vertex-l_pos);
     gl_Position = PM * VM * TG * vec4 (vertex, 1.0);
 }
