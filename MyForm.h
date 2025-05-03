@@ -7,6 +7,7 @@ class MyForm : public QWidget
 
   public:
     MyForm (QWidget *parent=0);
+    int pagina;
 
   private slots:        // nou
     void goToImagePage();

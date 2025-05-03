@@ -3,6 +3,7 @@ moc_predefs.h
 moc_MyForm.cpp
 moc_BL2GLWidget.cpp
 moc_MyGLWidget.cpp
+moc_MyLabel.cpp
 ui_MyForm.h
 core
 *.core
