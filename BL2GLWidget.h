@@ -32,7 +32,7 @@ class BL2GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 
 
     // attribute locations
-    GLuint vertexLoc, colorLoc;
+    GLuint vertexLoc;
     // uniform locations
     GLuint transLoc;
     // VAO i VBO names

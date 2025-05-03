@@ -141,37 +141,59 @@ void MyGLWidget::creaBuffers ()
 {
     m.load("./Models/Cupra.obj");
 
-    // Creació del Vertex Array Object per pintar
+    // Creació del Vertex Array Object 
     glGenVertexArrays(1, &VAO_Model);
     glBindVertexArray(VAO_Model);
 
-    GLuint VBO_Model[3];
-    glGenBuffers(3, VBO_Model);
+    GLuint VBO_Model[6];
+
+    // Buffer Vertices:
+    glGenBuffers(6, VBO_Model);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_vertices(), GL_STATIC_DRAW);
 
-    // Activem l'atribut vertexLoc
     glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(vertexLoc);
 
-    //
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size()*3*3, m.VBO_normals(), GL_STATIC_DRAW);
-    
+    // Buffer normals:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_normals(), GL_STATIC_DRAW);
+
     glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(normalLoc);
     
+    // Buffer matambient:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_matamb(), GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[1]);
+    glVertexAttribPointer(matspecLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matspecLoc);
+
+    // Buffer matdiff:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[3]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_matdiff(), GL_STATIC_DRAW);
+    
+    glVertexAttribPointer(matdiffLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matdiffLoc);
 
-    // Activem l'atribut colorLoc
-    glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(colorLoc);
+    // Buffer matspec:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[4]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size()* 3 * 3, m.VBO_matspec(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(matspecLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matspecLoc);
+
+    // Buffer matshin:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[5]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size()* 3, m.VBO_matshin(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(matspecLoc, 1, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matspecLoc);
 
     glBindVertexArray (0);
 
     // Dades del terra
-    // Dos VBOs, un amb posició i l'altre amb color
+    // Dos VBOs, un amb posició i l'altre amb 
 
     glm::vec3 color[6] = {
         glm::vec3(1,0,0),
@@ -228,8 +250,20 @@ void MyGLWidget::carregaShaders() {
 
     projLoc = glGetUniformLocation(program->programId(), "PM");
     viewLoc = glGetUniformLocation(program->programId(), "VM");
-    vertexLocTerra = glGetAttribLocation (program->programId(), "vertex");
-    colorLocTerra = glGetAttribLocation (program->programId(), "color");
+    
+    vertexLocTerra = glGetAttribLocation (program->programId(), "vertex");    
+    colorLocTerra = glGetAttribLocation (program->programId(), "matdiff");
+    
+    normalLoc = glGetAttribLocation (program->programId(), "normal");
+    matdiffLoc = glGetAttribLocation (program->programId(), "matdiff");
+    matambLoc = glGetAttribLocation (program->programId(), "matamb");
+    matspecLoc = glGetAttribLocation (program->programId(), "matspec");
+    matshinLoc = glGetAttribLocation (program->programId(), "matshin");
+
+    lightposLoc = glGetUniformLocation (program->programId(), "l_pos");
+    lightcolLoc = glGetUniformLocation (program->programId(), "l_col");
+    lightcolLoc = glGetUniformLocation (program->programId(), "amb_l_col");
+
 }
 
 void MyGLWidget::ini_camera() 

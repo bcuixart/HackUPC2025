@@ -36,8 +36,18 @@ class MyGLWidget : public BL2GLWidget {
     GLuint projLoc;
     GLuint normalLoc;
     GLuint viewLoc;
+
     GLuint VAO_Model;
     GLuint VAO_Terra;
+    GLuint matambLoc;
+    GLuint matdiffLoc;
+    GLuint matspecLoc;
+    GLuint matshinLoc;
+
+    GLuint lightposLoc;
+    GLuint lightcolLoc;
+    GLuint amblightLoc;
+    
     GLuint vertexLocTerra;
     GLuint colorLocTerra;
 
@@ -89,7 +99,7 @@ class MyGLWidget : public BL2GLWidget {
     struct Llum {
       glm::vec3 pos;
       glm::vec3 I_color;
-    }
+    };
 
     float L = L_ORIGINAL;
     float R = R_ORIGINAL;

@@ -86,52 +86,45 @@ void BL2GLWidget::keyPressEvent(QKeyEvent* event)
 
 void BL2GLWidget::creaBuffers () 
 {
-  // Dades de la caseta
-  // Dos VBOs, un amb posició i l'altre amb color
-  glm::vec3 posicio[9] = {
-	glm::vec3(-0.5, -1.0, -0.5),
-	glm::vec3( 0.5, -1.0, -0.5),
-	glm::vec3(-0.5,  0.0, -0.5),
-	glm::vec3(-0.5,  0.0, -0.5),
-	glm::vec3( 0.5, -1.0, -0.5),
-	glm::vec3( 0.5,  0.0, -0.5),
-	glm::vec3( 0.5,  0.0, -0.5),
-	glm::vec3( 0.0,  0.6, -0.5),
-	glm::vec3(-0.5,  0.0, -0.5)
-  }; 
-  glm::vec3 color[9] = {
-	glm::vec3(1,0,0),
-	glm::vec3(0,1,0),
-	glm::vec3(0,0,1),
-	glm::vec3(0,0,1),
-	glm::vec3(0,1,0),
-	glm::vec3(1,0,0),
-	glm::vec3(1,0,0),
-	glm::vec3(0,1,0),
-	glm::vec3(0,0,1)
-  };
+  // // Dades de la caseta
+  // // Dos VBOs, un amb posició i l'altre amb color
+  // glm::vec3 posicio[9] = {
+	// glm::vec3(-0.5, -1.0, -0.5),
+	// glm::vec3( 0.5, -1.0, -0.5),
+	// glm::vec3(-0.5,  0.0, -0.5),
+	// glm::vec3(-0.5,  0.0, -0.5),
+	// glm::vec3( 0.5, -1.0, -0.5),
+	// glm::vec3( 0.5,  0.0, -0.5),
+	// glm::vec3( 0.5,  0.0, -0.5),
+	// glm::vec3( 0.0,  0.6, -0.5),
+	// glm::vec3(-0.5,  0.0, -0.5)
+  // }; 
+  // glm::vec3 color[9] = {
+	// glm::vec3(1,0,0),
+	// glm::vec3(0,1,0),
+	// glm::vec3(0,0,1),
+	// glm::vec3(0,0,1),
+	// glm::vec3(0,1,0),
+	// glm::vec3(1,0,0),
+	// glm::vec3(1,0,0),
+	// glm::vec3(0,1,0),
+	// glm::vec3(0,0,1)
+  //};
 
   // Creació del Vertex Array Object per pintar
-  glGenVertexArrays(1, &VAO_Casa);
-  glBindVertexArray(VAO_Casa);
+  //glGenVertexArrays(1, &VAO_Casa);
+  //glBindVertexArray(VAO_Casa);
 
-  GLuint VBO_Casa[2];
-  glGenBuffers(2, VBO_Casa);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO_Casa[0]);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(posicio), posicio, GL_STATIC_DRAW);
+  //GLuint VBO_Casa[2];
+  //glGenBuffers(2, VBO_Casa);
+  //glBindBuffer(GL_ARRAY_BUFFER, VBO_Casa[0]);
+  //glBufferData(GL_ARRAY_BUFFER, sizeof(posicio), posicio, GL_STATIC_DRAW);
 
-  // Activem l'atribut vertexLoc
-  glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-  glEnableVertexAttribArray(vertexLoc);
+  //// Activem l'atribut vertexLoc
+  //glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  //glEnableVertexAttribArray(vertexLoc);
 
-  glBindBuffer(GL_ARRAY_BUFFER, VBO_Casa[1]);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
-
-  // Activem l'atribut colorLoc
-  glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-  glEnableVertexAttribArray(colorLoc);
-
-  glBindVertexArray (0);
+  //glBindVertexArray (0);
 }
 
 void BL2GLWidget::carregaShaders()
@@ -154,8 +147,7 @@ void BL2GLWidget::carregaShaders()
 
   // Obtenim identificador per a l'atribut “vertex” del vertex shader
   vertexLoc = glGetAttribLocation (program->programId(), "vertex");
-  // Obtenim identificador per a l'atribut “color” del vertex shader
-  colorLoc = glGetAttribLocation (program->programId(), "color");
+  
   // Uniform locations
   transLoc = glGetUniformLocation(program->programId(), "TG");
 }
