@@ -47,6 +47,8 @@ class MyGLWidget : public BL2GLWidget {
     GLuint lightposLoc;
     GLuint lightcolLoc;
     GLuint amblightLoc;
+
+    GLuint obsLoc;
     
     GLuint vertexLocTerra;
     GLuint colorLocTerra;

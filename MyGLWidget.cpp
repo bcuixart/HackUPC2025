@@ -131,7 +131,10 @@ void MyGLWidget::paintGL ()
   glBindVertexArray (VAO_Model);
   
   glm::vec3 l_pos(0.0,10.0,0.0);
-  glUniform1fv(lightposLoc, 1, &l_pos[0]);
+  glm::vec3 l_col(1.0,1.0,1.0);
+  glUniform3fv(lightposLoc, 1, &l_pos[0]);
+  glUniform3fv(lightcolLoc, 1, &l_col[0]);
+  glUniform3fv(obsLoc, 1, &OBS[0]);
   glDrawArrays(GL_TRIANGLES, 0, m.faces().size() * 3);
 
   modelTransform ();
@@ -267,7 +270,8 @@ void MyGLWidget::carregaShaders() {
 
     lightposLoc = glGetUniformLocation (program->programId(), "l_pos");
     lightcolLoc = glGetUniformLocation (program->programId(), "l_col");
-    lightcolLoc = glGetUniformLocation (program->programId(), "amb_l_col");
+    amblightLoc = glGetUniformLocation (program->programId(), "amb_l_col");
+    obsLoc = glGetUniformLocation (program->programId(), "obs");
 
 }
 
