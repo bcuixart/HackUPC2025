@@ -9,7 +9,7 @@
 
 MyGLWidget::MyGLWidget(QWidget *parent=0) : BL2GLWidget(parent) {
   connect(&timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
-  timer.start(100);
+  timer.start(10);
 }
 
 int MyGLWidget::printOglError(const char file[], int line, const char func[]) 
@@ -53,7 +53,7 @@ int MyGLWidget::printOglError(const char file[], int line, const char func[])
 
 void MyGLWidget::heartbeat() 
 {
-    time += 1;
+    time += 0.025;
     update();
 }
 

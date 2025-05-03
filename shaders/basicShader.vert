@@ -13,9 +13,13 @@ out vec3 fcolor;
 uniform int doesWaves;
 
 uniform float time;
-uniform float waveAmplitude = 1;
-uniform float waveFrequency = 20.0;
+uniform float waveAmplitude = .5;
+uniform float waveFrequency = 10.0;
 uniform float waveSpeed = 1.0;
+
+float random(float x) {
+    return fract(sin(x) * 43758.5453123);
+}
 
 void main()  {
     fcolor = color;
@@ -23,7 +27,8 @@ void main()  {
 
     if (doesWaves == 1) {
         float angle = atan(vertex.z, vertex.x);
-        float wave = sin(angle * waveFrequency - time * waveSpeed);
+        float offset = random(angle) * 1;
+        float wave = sin(angle * waveFrequency - time * waveSpeed + offset);
       
         gl_Position = PM * VM * TG * vec4 (vertex.x, vertex.y + wave * waveAmplitude, vertex.z, 1.0);
 
