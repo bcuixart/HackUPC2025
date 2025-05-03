@@ -25,9 +25,10 @@ void main()  {
     fcolor = color;
     fpos = vertex;
 
-    if (doesWaves == 1) {
+    if (doesWaves == 1) 
+    {
         float angle = atan(vertex.z, vertex.x);
-        float offset = random(angle) * 1;
+        float offset = random(angle) * .5;
         float wave = sin(angle * waveFrequency - time * waveSpeed + offset);
       
         gl_Position = PM * VM * TG * vec4 (vertex.x, vertex.y + wave * waveAmplitude, vertex.z, 1.0);
