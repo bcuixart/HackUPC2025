@@ -166,8 +166,8 @@ void MyGLWidget::creaBuffers ()
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[2]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_matamb(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(matspecLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(matspecLoc);
+    glVertexAttribPointer(matambLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matambLoc);
 
     // Buffer matdiff:
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[3]);
@@ -187,8 +187,8 @@ void MyGLWidget::creaBuffers ()
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[5]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size()* 3, m.VBO_matshin(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(matspecLoc, 1, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(matspecLoc);
+    glVertexAttribPointer(matshinLoc, 1, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matshinLoc);
 
     glBindVertexArray (0);
 

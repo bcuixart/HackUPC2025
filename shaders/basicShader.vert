@@ -17,7 +17,7 @@ uniform mat4 PM;
 uniform mat4 VM;
 
 out vec3 fcolor;
-out n_vec;
+out vec3 n_vec;
 
 void main()  {
     fcolor = matdiff;
