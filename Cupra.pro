@@ -7,5 +7,5 @@ FORMS += MyForm.ui
 
 HEADERS += MyForm.h BL2GLWidget.h MyGLWidget.h
 
-SOURCES += main.cpp MyForm.cpp \
+SOURCES += main.cpp MyForm.cpp Test.cpp \
         BL2GLWidget.cpp MyGLWidget.cpp model.cpp

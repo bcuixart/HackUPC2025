@@ -16,6 +16,7 @@ uniform float time;
 uniform float waveAmplitude = .5;
 uniform float waveFrequency = 10.0;
 uniform float waveSpeed = 1.0;
+uniform vec3 waveColor;
 
 float random(float x) {
     return fract(sin(x) * 43758.5453123);
@@ -23,10 +24,12 @@ float random(float x) {
 
 void main()  {
     fcolor = color;
-    fpos = vertex;
+    fpos = (TG * vec4(vertex, 1)).xyz;
 
     if (doesWaves == 1) 
     {
+        fcolor = waveColor;
+
         float angle = atan(vertex.z, vertex.x);
         float offset = random(angle) * .5;
         float wave = sin(angle * waveFrequency - time * waveSpeed + offset);

@@ -10,6 +10,14 @@
 MyGLWidget::MyGLWidget(QWidget *parent=0) : BL2GLWidget(parent) {
   connect(&timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
   timer.start(10);
+
+  connect(&timerNextQuestion, SIGNAL(timeout()), this, SLOT(QuestionProcedure()));
+  timerNextQuestion.setSingleShot(true);
+}
+
+void MyGLWidget::QuestionProcedure() 
+{
+    TestQuestionProcedure(0);
 }
 
 int MyGLWidget::printOglError(const char file[], int line, const char func[]) 
@@ -53,7 +61,15 @@ int MyGLWidget::printOglError(const char file[], int line, const char func[])
 
 void MyGLWidget::heartbeat() 
 {
+    makeCurrent();
     time += 0.025;
+
+    if (testActive) {
+        posicioCarretera.z = fmod(posicioCarretera.z + velocitatCarretera, 4);
+        CameraApproachExpected();
+    }
+
+    ini_camera();
     update();
 }
 
@@ -73,15 +89,21 @@ void MyGLWidget::mousePressEvent(QMouseEvent* event)
 void MyGLWidget::mouseMoveEvent(QMouseEvent* event) 
 {
     makeCurrent();
-    if (event->buttons() == Qt::LeftButton && !(event->modifiers() & (Qt::ShiftModifier | Qt::AltModifier | Qt::ControlModifier))) 
+    if (!testActive && event->buttons() == Qt::LeftButton && !(event->modifiers() & (Qt::ShiftModifier | Qt::AltModifier | Qt::ControlModifier))) 
     {
         cam_Rot_Euler_Y += event->pos().x() - mousePosPrevX;
-        cam_Rot_Euler_X += event->pos().y() - mousePosPrevY;
 
-        //std::cerr << cam_Rot_Euler_X << ' ' << cam_Rot_Euler_Y << std::endl;
+        float nextCamX = cam_Rot_Euler_X + event->pos().y() - mousePosPrevY;
+        if (nextCamX > 90 && nextCamX < 180) cam_Rot_Euler_X = nextCamX;
+
+        std::cerr << cam_Rot_Euler_X << ' ' << cam_Rot_Euler_Y << std::endl;
 
         mousePosPrevX = event->pos().x();
         mousePosPrevY = event->pos().y();
+
+        cam_Rot_Euler_X = fmod(cam_Rot_Euler_X, 360);
+        cam_Rot_Euler_Y = fmod(cam_Rot_Euler_Y, 360);
+        cam_Rot_Euler_Z = fmod(cam_Rot_Euler_Z, 360);
 
         ini_camera();
         update();
@@ -92,8 +114,17 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
 {
   makeCurrent();
   switch (event->key()) {
-    case Qt::Key_R: {
-      //rotationY += .1;
+    case Qt::Key_Space: {
+        //if (!testActive) {
+            testActive = true;
+
+            cam_Expected_Rot_Euler_X = 173;
+            cam_Expected_Rot_Euler_Y = 346;
+
+            timerNextQuestion.start(1000);
+
+            StartTest();
+        //}
       break;
     }
     default: event->ignore(); break;
@@ -126,11 +157,28 @@ void MyGLWidget::paintGL ()
   glBindVertexArray (VAO_Terra);
   glDrawArrays(GL_TRIANGLES, 0, 24);
 
+  modelTransformCarretera ();
+  glBindVertexArray (VAO_Carretera);
+  glDrawArrays(GL_TRIANGLES, 0, mCarretera.faces().size() * 3);
+
   glUniform1i(teBoira, 0);
   glUniform1i(faOndulacions, 1);
 
-  modelTransformBackground ();
+  glUniform1f(ondulacionsAmplitude, .5);
+  glUniform1f(ondulacionsFrequency, 10);
+  glUniform1f(ondulacionsWaveSpeed, 1);
+
+  modelTransformBackground (posicioBackgroundBase, escalaBackgroundBase);
   glBindVertexArray (VAO_Background);
+  glDrawArrays(GL_TRIANGLES, 0, mBackground.faces().size() * 3);
+
+  glm::vec3 wC = glm::vec3(0,1,0);
+  glUniform1f(ondulacionsAmplitude, 1);
+  glUniform1f(ondulacionsFrequency, 5);
+  glUniform1f(ondulacionsWaveSpeed, -1);
+  glUniform3fv(ondulacionsWaveColor, 1, &wC[0]);
+
+  modelTransformBackground (posicioBackgroundBase2, escalaBackgroundBase2);
   glDrawArrays(GL_TRIANGLES, 0, mBackground.faces().size() * 3);
 
   glBindVertexArray (0);
@@ -197,6 +245,35 @@ void MyGLWidget::creaBuffers ()
     glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(normalLoc);
 
+    mCarretera.load("./Models/Road.obj");
+
+    // Creació del Vertex Array Object per pintar
+    glGenVertexArrays(1, &VAO_Carretera);
+    glBindVertexArray(VAO_Carretera);
+
+    GLuint VBO_Carretera[3];
+    glGenBuffers(3, VBO_Carretera);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Carretera[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCarretera.faces().size() * 3 * 3, mCarretera.VBO_vertices(), GL_STATIC_DRAW);
+
+    // Activem l'atribut vertexLoc
+    glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(vertexLoc);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Carretera[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCarretera.faces().size() * 3 * 3, mCarretera.VBO_matdiff(), GL_STATIC_DRAW);
+
+    // Activem l'atribut colorLoc
+    glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(colorLoc);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Carretera[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCarretera.faces().size(), mCarretera.VBO_normals(), GL_STATIC_DRAW);
+
+    // Activem l'atribut normalLoc
+    glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(normalLoc);
+
     glBindVertexArray (0);
 
     // Dades del terra
@@ -248,6 +325,10 @@ void MyGLWidget::carregaShaders() {
     teBoira = glGetUniformLocation (program->programId(), "usesFog");
     faOndulacions = glGetUniformLocation (program->programId(), "doesWaves");
     ondulacionsTime = glGetUniformLocation (program->programId(), "time");
+    ondulacionsAmplitude = glGetUniformLocation (program->programId(), "waveAmplitude");
+    ondulacionsFrequency = glGetUniformLocation (program->programId(), "waveFrequency");
+    ondulacionsWaveSpeed = glGetUniformLocation (program->programId(), "waveSpeed");
+    ondulacionsWaveColor = glGetUniformLocation (program->programId(), "waveColor");
 }
 
 void MyGLWidget::ini_camera() 
@@ -268,9 +349,24 @@ void MyGLWidget::ini_camera()
 
     if (FOV_ORIGINAL == -1) FOV_ORIGINAL = FOV;
     
-    ZNEAR = D - radi;
-
     projectTransform();
+}
+
+void MyGLWidget::CameraApproachExpected() 
+{
+    const float epsilon = 0.1f;
+
+    float diff = fmod((cam_Expected_Rot_Euler_X - cam_Rot_Euler_X + 540.0f), 360.0f) - 180.0f;
+    if (abs(diff) <= rotationExpectedSpeed + epsilon) cam_Rot_Euler_X = cam_Expected_Rot_Euler_X;
+    else cam_Rot_Euler_X = fmod(cam_Rot_Euler_X + rotationExpectedSpeed * (diff > 0 ? 1.0f : -1.0f) + 360.0f, 360.0f);
+
+    diff = fmod((cam_Expected_Rot_Euler_Y - cam_Rot_Euler_Y + 540.0f), 360.0f) - 180.0f;
+    if (abs(diff) <= rotationExpectedSpeed + epsilon) cam_Rot_Euler_Y = cam_Expected_Rot_Euler_Y;
+    else cam_Rot_Euler_Y = fmod(cam_Rot_Euler_Y + rotationExpectedSpeed * (diff > 0 ? 1.0f : -1.0f) + 360.0f, 360.0f);
+
+    diff = fmod((cam_Expected_Rot_Euler_Z - cam_Rot_Euler_Z + 540.0f), 360.0f) - 180.0f;
+    if (abs(diff) <= rotationExpectedSpeed + epsilon) cam_Rot_Euler_Z = cam_Expected_Rot_Euler_Z;
+    else cam_Rot_Euler_Z = fmod(cam_Rot_Euler_Z + rotationExpectedSpeed * (diff > 0 ? 1.0f : -1.0f) + 360.0f, 360.0f);
 }
 
 void MyGLWidget::modelTransformTerra () 
@@ -288,12 +384,21 @@ void MyGLWidget::modelTransformCupra ()
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
-void MyGLWidget::modelTransformBackground () 
+void MyGLWidget::modelTransformBackground(glm::vec3 pos, glm::vec3 scale) 
 {
   glm::mat4 transform (1.0f);
-  transform = glm::translate(transform, posicioBackgroundBase);
+  transform = glm::translate(transform, pos);
+  transform = glm::scale(transform, scale);
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
+
+void MyGLWidget::modelTransformCarretera () 
+{
+  glm::mat4 transform (1.0f);
+  transform = glm::translate(transform, posicioCarretera);
+  glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
+}
+
 
 void MyGLWidget::projectTransform() {
     glm::mat4 Proj = glm::perspective(FOV, RA, ZNEAR, ZFAR);

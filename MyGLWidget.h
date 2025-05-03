@@ -1,6 +1,7 @@
 // MyGLWidget.h
 #include "BL2GLWidget.h"
 #include "model.h"
+#include "Test.h"
 #include <QTimer>
 
 #define TERRA_SIZE 10
@@ -16,6 +17,7 @@ class MyGLWidget : public BL2GLWidget {
 
   public slots:
     void heartbeat();
+    void QuestionProcedure();
 
   private:
     int printOglError(const char file[], int line, const char func[]);
@@ -33,24 +35,30 @@ class MyGLWidget : public BL2GLWidget {
 
     void modelTransformTerra();
     void modelTransformCupra();
-    void modelTransformBackground();
+    void modelTransformBackground(glm::vec3 pos, glm::vec3 scale);
+    void modelTransformCarretera();
 
     void projectTransform();
     void viewTransform(glm::vec3 OBS, glm::vec3 VRP);
+    void CameraApproachExpected();
 
     void ini_camera();
 
     QTimer timer;
     float time = 0;
 
+    QTimer timerNextQuestion;
+
     Model mCupra;
     Model mBackground;
+    Model mCarretera;
     
     GLuint projLoc;
     GLuint viewLoc;
     GLuint VAO_Cupra;
     GLuint VAO_Terra;
     GLuint VAO_Background;
+    GLuint VAO_Carretera;
     GLuint normalLoc;
     GLuint vertexLocTerra;
     GLuint colorLocTerra;
@@ -58,6 +66,12 @@ class MyGLWidget : public BL2GLWidget {
     GLuint teBoira;
     GLuint faOndulacions;
     GLuint ondulacionsTime;
+    GLuint ondulacionsAmplitude;
+    GLuint ondulacionsFrequency;
+    GLuint ondulacionsWaveSpeed;
+    GLuint ondulacionsWaveColor;
+
+    bool testActive = false;
 
     //Terra
     glm::vec3 posicio[24] = {
@@ -131,7 +145,7 @@ class MyGLWidget : public BL2GLWidget {
     float RA = 1.f;
     float FOV_ORIGINAL = -1;
     float FOV;
-    float ZNEAR;
+    float ZNEAR = 5;
     float ZFAR = 100;
     float D = 0;
     float radi;
@@ -139,13 +153,25 @@ class MyGLWidget : public BL2GLWidget {
     int mousePosPrevX = 0;
     int mousePosPrevY = 0;
 
-    float cam_Rot_Euler_X = 0;
-    float cam_Rot_Euler_Y = 0;
+    float cam_Rot_Euler_X = 160;
+    float cam_Rot_Euler_Y = -155;
     float cam_Rot_Euler_Z = 0;
+
+    float cam_Expected_Rot_Euler_X = 0;
+    float cam_Expected_Rot_Euler_Y = 0;
+    float cam_Expected_Rot_Euler_Z = 0;
+
+    float rotationExpectedSpeed = 2;
 
     glm::vec3 posicioCupra = glm::vec3 (0, 0, 0);
     float rotationYCupra = 0;
     float escalaCupra = 1;
 
     glm::vec3 posicioBackgroundBase = glm::vec3 (0, 2, 0);
+    glm::vec3 escalaBackgroundBase = glm::vec3 (1, 1, 1);
+    glm::vec3 posicioBackgroundBase2 = glm::vec3 (0, 2, 0);
+    glm::vec3 escalaBackgroundBase2 = glm::vec3 (1.1, 2, 1.1);
+
+    glm::vec3 posicioCarretera = glm::vec3(0,0.01,0);
+    float velocitatCarretera = -0.1;
 };
