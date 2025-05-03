@@ -9,19 +9,26 @@
 
 MyGLWidget::MyGLWidget(QWidget *parent=0) : BL2GLWidget(parent) {
 
-
-
 }
 
 void MyGLWidget::StartWidget() 
 {
-    cout << "Caca" << endl;
+  cout << "Caca" << endl;
 
   connect(&timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
   timer.start(10);
 
   connect(&timerNextQuestion, SIGNAL(timeout()), this, SLOT(QuestionProcedure()));
   timerNextQuestion.setSingleShot(true);
+
+  testActive = true;
+
+  cam_Expected_Rot_Euler_X = -173 + 180;
+  cam_Expected_Rot_Euler_Y = 346 + 180;
+
+  timerNextQuestion.start(1000);
+
+  StartTest();
 }
 
 void MyGLWidget::QuestionProcedure() 
@@ -97,14 +104,13 @@ void MyGLWidget::mousePressEvent(QMouseEvent* event)
 
 void MyGLWidget::mouseMoveEvent(QMouseEvent* event) 
 {
-/*
     makeCurrent();
     if (!testActive && event->buttons() == Qt::LeftButton && !(event->modifiers() & (Qt::ShiftModifier | Qt::AltModifier | Qt::ControlModifier))) 
     {
         cam_Rot_Euler_Y += event->pos().x() - mousePosPrevX;
 
         float nextCamX = cam_Rot_Euler_X + event->pos().y() - mousePosPrevY;
-        if (nextCamX > 90 && nextCamX < 180) cam_Rot_Euler_X = nextCamX;
+        if (nextCamX > 0 && nextCamX < 90) cam_Rot_Euler_X = nextCamX;
 
         std::cerr << cam_Rot_Euler_X << ' ' << cam_Rot_Euler_Y << std::endl;
 
@@ -118,7 +124,6 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent* event)
         ini_camera();
         update();
     }
-*/
 }
 
 void MyGLWidget::keyPressEvent(QKeyEvent* event) 
@@ -127,14 +132,7 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
   switch (event->key()) {
     case Qt::Key_Space: {
         //if (!testActive) {
-            testActive = true;
 
-            cam_Expected_Rot_Euler_X = 173;
-            cam_Expected_Rot_Euler_Y = 346;
-
-            timerNextQuestion.start(1000);
-
-            StartTest();
         //}
       break;
     }

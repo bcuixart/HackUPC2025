@@ -154,8 +154,8 @@ class MyGLWidget : public BL2GLWidget {
     int mousePosPrevX = 0;
     int mousePosPrevY = 0;
 
-    float cam_Rot_Euler_X = -160;
-    float cam_Rot_Euler_Y = -155;
+    float cam_Rot_Euler_X = -160 + 180;
+    float cam_Rot_Euler_Y = -155 + 180;
     float cam_Rot_Euler_Z = 0;
 
     float cam_Expected_Rot_Euler_X = 0;

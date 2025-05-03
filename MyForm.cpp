@@ -1,29 +1,15 @@
 #include "MyForm.h"
 #include <QPixmap>
-
-// ui.pages->setCurrentIndex(1); // pagina en blanco
-// ui.pages->setCurrentIndex(3); // pagina END
+#include <iostream>
 
 MyForm::MyForm (QWidget* parent) : QWidget(parent), timer(new QTimer(this))
 {
   ui.setupUi(this);
   ui.pages->setCurrentIndex(0);
-  // Connexions           nou
-  connect(ui.startButton, &QPushButton::clicked, this, &MyForm::goToStartPage);  // Botó següent
   connect(timer, &QTimer::timeout, this, &MyForm::goToEndPage);
   pagina = 0;
   QPixmap pix("./Imagenes/ini.png");
   ui.imageLabel2->setPixmap(pix.scaled(600, 343, Qt::KeepAspectRatio));
-}
-
-void MyForm::goToStartPage() {
-    ui.pages->setCurrentIndex(2); // pagina pregunta 1  
-
-    QPixmap pix("./Imagenes/a.jpg");
-    ui.imageLabel->setPixmap(pix.scaled(600, 343, Qt::KeepAspectRatio));
-    pagina = 2;
-    //timer->setSingleShot(true);
-    //timer->start(3000);  // Espera 3 segons
 }
 
 void MyForm::goToEndPage() {
@@ -31,6 +17,21 @@ void MyForm::goToEndPage() {
 }
 
 void MyForm::pas() {
-  pagina = 3;
+  ++pagina;
   ui.pages->setCurrentIndex(pagina); 
+  if (pagina%2 == 0) {
+    if (pagina == 2) {      // pregunta 1
+      QPixmap pix(imagenes[0]);
+      ui.imageLabel->setPixmap(pix.scaled(600, 343, Qt::KeepAspectRatio));
+    }
+    else if (pagina == 4) {  // pregunta 2
+      QPixmap pix(imagenes[1]);
+      ui.imageLabel_2->setPixmap(pix.scaled(600, 343, Qt::KeepAspectRatio));
+    }
+    else if (pagina == 6) {
+      QPixmap pix(imagenes[2]);
+      ui.imageLabel_3->setPixmap(pix.scaled(600, 343, Qt::KeepAspectRatio));
+    }
+  }
+  emit animacion();
 }

@@ -11,13 +11,19 @@ class MyForm : public QWidget
 
   public slots:
     void pas();
+  signals:
+  void animacion();  
 
   private slots:        // nou
-    void goToStartPage();
     void goToEndPage();
   
   private:
     Ui::MyForm ui;
     QTimer *timer; // nou
+    QStringList imagenes = {
+      "./Imagenes/a.jpg",
+      "./Imagenes/b.png",
+      "./Imagenes/c.jpg",
+    };
 };
 

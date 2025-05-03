@@ -22,9 +22,8 @@ void MyLabel::tractarPag() {
 }
 
 void MyLabel::tractarConf() {
-    std::cout << ans << std::endl; 
     if (ans) setText("Congratulations!!!");
     else setText("Fail");
     time.setSingleShot(true);
-    time.start(3000);
+    time.start(2000);
 }
