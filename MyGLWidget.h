@@ -1,6 +1,7 @@
 // MyGLWidget.h
 #include "BL2GLWidget.h"
 #include "model.h"
+#include <QTimer>
 
 #define TERRA_SIZE 10
 #define TERRA_COLOR_CLAR glm::vec3(1, 1, 1)
@@ -10,8 +11,11 @@ class MyGLWidget : public BL2GLWidget {
   Q_OBJECT
 
   public:
-    MyGLWidget(QWidget *parent=0) : BL2GLWidget(parent) {}
+    MyGLWidget(QWidget *parent);
     ~MyGLWidget();
+
+  public slots:
+    void heartbeat();
 
   private:
     int printOglError(const char file[], int line, const char func[]);
@@ -29,22 +33,31 @@ class MyGLWidget : public BL2GLWidget {
 
     void modelTransformTerra();
     void modelTransformCupra();
+    void modelTransformBackground();
 
     void projectTransform();
     void viewTransform(glm::vec3 OBS, glm::vec3 VRP);
 
     void ini_camera();
 
+    QTimer timer;
+    float time = 0;
+
     Model mCupra;
+    Model mBackground;
     
     GLuint projLoc;
     GLuint viewLoc;
-    GLuint VAO_Model;
+    GLuint VAO_Cupra;
     GLuint VAO_Terra;
+    GLuint VAO_Background;
     GLuint normalLoc;
     GLuint vertexLocTerra;
     GLuint colorLocTerra;
     GLuint normalLocTerra;
+    GLuint teBoira;
+    GLuint faOndulacions;
+    GLuint ondulacionsTime;
 
     //Terra
     glm::vec3 posicio[24] = {
@@ -133,4 +146,6 @@ class MyGLWidget : public BL2GLWidget {
     glm::vec3 posicioCupra = glm::vec3 (0, 0, 0);
     float rotationYCupra = 0;
     float escalaCupra = 1;
+
+    glm::vec3 posicioBackgroundBase = glm::vec3 (0, 2, 0);
 };

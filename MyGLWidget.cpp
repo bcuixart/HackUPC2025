@@ -7,6 +7,11 @@
 #define CHECK() printOglError(__FILE__, __LINE__,__FUNCTION__)
 #define DEBUG() std::cout << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
 
+MyGLWidget::MyGLWidget(QWidget *parent=0) : BL2GLWidget(parent) {
+  connect(&timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
+  timer.start(100);
+}
+
 int MyGLWidget::printOglError(const char file[], int line, const char func[]) 
 {
     GLenum glErr;
@@ -44,6 +49,12 @@ int MyGLWidget::printOglError(const char file[], int line, const char func[])
         retCode = 1;
     }
     return retCode;
+}
+
+void MyGLWidget::heartbeat() 
+{
+    time += 1;
+    update();
 }
 
 void MyGLWidget::mousePressEvent(QMouseEvent* event) 
@@ -103,13 +114,25 @@ void MyGLWidget::paintGL ()
   // Esborrem el frame-buffer
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  glUniform1i(teBoira, 1);
+  glUniform1i(faOndulacions, 0);
+  glUniform1f(ondulacionsTime, time);
+
   modelTransformCupra ();
-  glBindVertexArray (VAO_Model);
+  glBindVertexArray (VAO_Cupra);
   glDrawArrays(GL_TRIANGLES, 0, mCupra.faces().size() * 3);
 
   modelTransformTerra ();
   glBindVertexArray (VAO_Terra);
   glDrawArrays(GL_TRIANGLES, 0, 24);
+
+  glUniform1i(teBoira, 0);
+  glUniform1i(faOndulacions, 1);
+
+  modelTransformBackground ();
+  glBindVertexArray (VAO_Background);
+  glDrawArrays(GL_TRIANGLES, 0, mBackground.faces().size() * 3);
+
   glBindVertexArray (0);
 }
 
@@ -118,27 +141,57 @@ void MyGLWidget::creaBuffers ()
     mCupra.load("./Models/Cupra.obj");
 
     // Creació del Vertex Array Object per pintar
-    glGenVertexArrays(1, &VAO_Model);
-    glBindVertexArray(VAO_Model);
+    glGenVertexArrays(1, &VAO_Cupra);
+    glBindVertexArray(VAO_Cupra);
 
-    GLuint VBO_Model[3];
-    glGenBuffers(3, VBO_Model);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[0]);
+    GLuint VBO_Cupra[3];
+    glGenBuffers(3, VBO_Cupra);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Cupra[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size() * 3 * 3, mCupra.VBO_vertices(), GL_STATIC_DRAW);
 
     // Activem l'atribut vertexLoc
     glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(vertexLoc);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Cupra[1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size() * 3 * 3, mCupra.VBO_matdiff(), GL_STATIC_DRAW);
 
     // Activem l'atribut colorLoc
     glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(colorLoc);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[2]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Cupra[2]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size(), mCupra.VBO_normals(), GL_STATIC_DRAW);
+
+    // Activem l'atribut normalLoc
+    glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(normalLoc);
+
+
+    mBackground.load("./Models/BackgroundLine.obj");
+
+    // Creació del Vertex Array Object per pintar
+    glGenVertexArrays(1, &VAO_Background);
+    glBindVertexArray(VAO_Background);
+
+    GLuint VBO_Background[3];
+    glGenBuffers(3, VBO_Background);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Background[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mBackground.faces().size() * 3 * 3, mBackground.VBO_vertices(), GL_STATIC_DRAW);
+
+    // Activem l'atribut vertexLoc
+    glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(vertexLoc);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Background[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mBackground.faces().size() * 3 * 3, mBackground.VBO_matdiff(), GL_STATIC_DRAW);
+
+    // Activem l'atribut colorLoc
+    glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(colorLoc);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Background[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mBackground.faces().size(), mBackground.VBO_normals(), GL_STATIC_DRAW);
 
     // Activem l'atribut normalLoc
     glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -192,6 +245,9 @@ void MyGLWidget::carregaShaders() {
     vertexLocTerra = glGetAttribLocation (program->programId(), "vertex");
     colorLocTerra = glGetAttribLocation (program->programId(), "color");
     normalLoc = glGetAttribLocation (program->programId(), "normal");
+    teBoira = glGetUniformLocation (program->programId(), "usesFog");
+    faOndulacions = glGetUniformLocation (program->programId(), "doesWaves");
+    ondulacionsTime = glGetUniformLocation (program->programId(), "time");
 }
 
 void MyGLWidget::ini_camera() 
@@ -219,18 +275,23 @@ void MyGLWidget::ini_camera()
 
 void MyGLWidget::modelTransformTerra () 
 {
-  // Matriu de transformació de model
   glm::mat4 transform (1.0f);
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
 void MyGLWidget::modelTransformCupra () 
 {
-  // Matriu de transformació de model
   glm::mat4 transform (1.0f);
   transform = glm::rotate(transform, rotationYCupra, glm::vec3(0,1,0));
   transform = glm::translate(transform, posicioCupra);
   transform = glm::scale(transform, glm::vec3(escalaCupra));
+  glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
+}
+
+void MyGLWidget::modelTransformBackground () 
+{
+  glm::mat4 transform (1.0f);
+  transform = glm::translate(transform, posicioBackgroundBase);
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
