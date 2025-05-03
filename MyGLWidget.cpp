@@ -1,6 +1,7 @@
 // MyGLWidget.cpp
 #include "MyGLWidget.h"
 #include <iostream>
+#include <unordered_map>
 #include <stdio.h>
 
 #define printOpenGLError() printOglError(__FILE__, __LINE__)
@@ -118,6 +119,47 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
 MyGLWidget::~MyGLWidget() {
 }
 
+struct Vec3Hash {
+    std::size_t operator()(const glm::vec3& v) const {
+        std::hash<float> hasher;
+        size_t h1 = hasher(v.x);
+        size_t h2 = hasher(v.y);
+        size_t h3 = hasher(v.z);
+        return h1 ^ (h2 << 1) ^ (h3 << 2);
+    }
+};
+
+struct Vec3Equal {
+    bool operator()(const glm::vec3& a, const glm::vec3& b) const {
+        return glm::distance(a,b) < 1e-6f;
+    }
+};
+
+float* compute_vertex_normals(float* vertices, float* normals, int size) {
+    std::unordered_map<glm::vec3, glm::vec3, Vec3Hash, Vec3Equal> vertex_normal;
+    std::unordered_map<glm::vec3, int, Vec3Hash, Vec3Equal> vertex_count;
+    
+    float* result = (float*) malloc(size * sizeof(float));
+
+    for (int i = 0; i < size; i += 3) {
+        glm::vec3 v(vertices[i], vertices[i+1], vertices[i+2]);
+        glm::vec3 n(normals[i], normals[i+1], normals[i+2]);
+        vertex_normal[v] += n;
+        vertex_count[v] += 1;
+    }
+
+    for (int i = 0; i < size; i += 3) {
+        glm::vec3 v(vertices[i], vertices[i+1], vertices[i+2]);
+        glm::vec3 n = glm::normalize(vertex_normal[v] / (float)vertex_count[v]);
+        result[i+0] = n.x;
+        result[i+1] = n.y;
+        result[i+2] = n.z;
+    }
+
+    return result;
+}
+
+
 void MyGLWidget::paintGL () 
 {
 // En cas de voler canviar els paràmetres del viewport, descomenteu la crida següent i
@@ -132,8 +174,11 @@ void MyGLWidget::paintGL ()
   
   glm::vec3 l_pos(0.0,10.0,0.0);
   glm::vec3 l_col(1.0,1.0,1.0);
+  glm::vec3 amb_l_col(0.06,0.06,0.06);
+
   glUniform3fv(lightposLoc, 1, &l_pos[0]);
   glUniform3fv(lightcolLoc, 1, &l_col[0]);
+  glUniform3fv(amblightLoc, 1, &amb_l_col[0]);
   glUniform3fv(obsLoc, 1, &OBS[0]);
   glDrawArrays(GL_TRIANGLES, 0, m.faces().size() * 3);
 
@@ -162,8 +207,9 @@ void MyGLWidget::creaBuffers ()
     glEnableVertexAttribArray(vertexLoc);
 
     // Buffer normals:
+    float* normals = compute_vertex_normals(m.VBO_vertices(), m.VBO_normals(), m.faces().size()*3*3);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Model[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_normals(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, normals, GL_STATIC_DRAW);
 
     glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(normalLoc);

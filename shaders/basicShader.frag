@@ -30,13 +30,15 @@ vec3 calc_spec() {
     vec3 L = fs_l_pos - pos;
     vec3 R = normalize(2*n_vec*dot(n_vec, L) - L);
     
-    if (dot(normalize(n_vec), normalize(L)) < 0) {
-        return l_col*spec*pow(dot(R,v), 100);
+    if (dot(normalize(n_vec), normalize(L)) > 0) {
+        return l_col*spec*max(pow(dot(R,v), shin), 0.0);
     }
-    else return vec3(0.0,0.0,0.0);
+    else {
+        return vec3(0.0,0.0,0.0);
+    }
 }
 
 void main() {
-    FragColor = vec4(calc_diff() + calc_amb() + calc_spec(), 1.0);
+    FragColor = vec4(calc_amb() + calc_diff() + calc_spec(), 1.0);
 }
 
