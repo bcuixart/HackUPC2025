@@ -22,8 +22,17 @@ void MyLabel::tractarPag() {
 }
 
 void MyLabel::tractarConf() {
-    if (ans) setText("Congratulations!!!");
-    else setText("Fail");
+    int p = 0;
+    if (ans) {
+        setText("Congratulations!!!");
+        p = 1;
+    }
+    else {
+        setText("Fail");
+        p = 0;
+    }
+
+    emit punt(p);
     time.setSingleShot(true);
     time.start(2000);
 }

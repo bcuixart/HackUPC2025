@@ -8,33 +8,42 @@
 #define DEBUG() std::cout << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
 
 MyGLWidget::MyGLWidget(QWidget *parent=0) : BL2GLWidget(parent) {
-
-}
-
-void MyGLWidget::StartWidget() 
-{
-  cout << "Caca" << endl;
-
   connect(&timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
   timer.start(10);
+}
 
-  connect(&timerNextQuestion, SIGNAL(timeout()), this, SLOT(QuestionProcedure()));
-  timerNextQuestion.setSingleShot(true);
+void MyGLWidget::WidgetSlot() 
+{
+  //connect(&timerLegoManStart, SIGNAL(timeout()), this, SLOT(LegoManEnterCar()));
+  //timerLegoManStart.setSingleShot(true);
 
   testActive = true;
+  legomanMoving = true;
 
   cam_Expected_Rot_Euler_X = -173 + 180;
-  cam_Expected_Rot_Euler_Y = 346 + 180;
+  cam_Expected_Rot_Euler_Y = 256;
 
-  timerNextQuestion.start(1000);
+  //timerLegoManStart.start(2000);
 
   StartTest();
 }
 
+void MyGLWidget::LegoManEnterCar() 
+{
+  roadMoving = true;
+
+  cam_Expected_Rot_Euler_X = -173 + 180;
+  cam_Expected_Rot_Euler_Y = 346 + 180;
+
+  posicioLegoman = glm::vec3(10,0,0);
+}
+
+/*
 void MyGLWidget::QuestionProcedure() 
 {
     TestQuestionProcedure(0);
 }
+*/
 
 int MyGLWidget::printOglError(const char file[], int line, const char func[]) 
 {
@@ -81,8 +90,27 @@ void MyGLWidget::heartbeat()
     time += 0.025;
 
     if (testActive) {
-        posicioCarretera.z = fmod(posicioCarretera.z + velocitatCarretera, 4);
         CameraApproachExpected();
+    }
+
+    if (roadMoving) {
+        posicioCarretera.z = fmod(posicioCarretera.z + velocitatCarretera, 4);
+    }
+
+    if (legomanMoving) {
+        posicioLegoman.x -= legomanSpeed;
+
+        /*
+        if (abs(posicioLegoman.x) < 2) {
+            posicioLegoman.y += legomanSpeed * 2;
+            escalaLegoman -= 0.03;
+        }*/
+
+        if (abs(posicioLegoman.x) < 2.5) {
+            legomanMoving = false;
+            TestQuestion question = TestQuestionProcedure(0);
+            //LegoManEnterCar();
+        }
     }
 
     ini_camera();
@@ -112,7 +140,7 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent* event)
         float nextCamX = cam_Rot_Euler_X + event->pos().y() - mousePosPrevY;
         if (nextCamX > 0 && nextCamX < 90) cam_Rot_Euler_X = nextCamX;
 
-        std::cerr << cam_Rot_Euler_X << ' ' << cam_Rot_Euler_Y << std::endl;
+        //std::cerr << cam_Rot_Euler_X << ' ' << cam_Rot_Euler_Y << std::endl;
 
         mousePosPrevX = event->pos().x();
         mousePosPrevY = event->pos().y();
@@ -161,6 +189,10 @@ void MyGLWidget::paintGL ()
   modelTransformCupra ();
   glBindVertexArray (VAO_Cupra);
   glDrawArrays(GL_TRIANGLES, 0, mCupra.faces().size() * 3);
+
+  modelTransformLegoman ();
+  glBindVertexArray (VAO_Legoman);
+  glDrawArrays(GL_TRIANGLES, 0, mLegoman.faces().size() * 3);
 
   modelTransformTerra ();
   glBindVertexArray (VAO_Terra);
@@ -282,6 +314,35 @@ void MyGLWidget::creaBuffers ()
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Carretera[2]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCarretera.faces().size(), mCarretera.VBO_normals(), GL_STATIC_DRAW);
+
+    // Activem l'atribut normalLoc
+    glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(normalLoc);
+
+    mLegoman.load("./Models/legoman.obj");
+
+    // Creació del Vertex Array Object per pintar
+    glGenVertexArrays(1, &VAO_Legoman);
+    glBindVertexArray(VAO_Legoman);
+
+    GLuint VBO_Legoman[3];
+    glGenBuffers(3, VBO_Legoman);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size() * 3 * 3, mLegoman.VBO_vertices(), GL_STATIC_DRAW);
+
+    // Activem l'atribut vertexLoc
+    glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(vertexLoc);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size() * 3 * 3, mLegoman.VBO_matdiff(), GL_STATIC_DRAW);
+
+    // Activem l'atribut colorLoc
+    glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(colorLoc);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size(), mLegoman.VBO_normals(), GL_STATIC_DRAW);
 
     // Activem l'atribut normalLoc
     glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -412,6 +473,14 @@ void MyGLWidget::modelTransformCarretera ()
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
+void MyGLWidget::modelTransformLegoman() 
+{
+  glm::mat4 transform (1.0f);
+  transform = glm::translate(transform, posicioLegoman);
+  transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(0,1,0));
+  transform = glm::scale(transform, glm::vec3(escalaLegoman));
+  glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
+}
 
 void MyGLWidget::projectTransform() {
     glm::mat4 Proj = glm::perspective(FOV, RA, ZNEAR, ZFAR);

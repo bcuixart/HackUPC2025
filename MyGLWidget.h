@@ -17,8 +17,11 @@ class MyGLWidget : public BL2GLWidget {
 
   public slots:
     void heartbeat();
-    void QuestionProcedure();
-    void StartWidget();
+    void WidgetSlot();
+
+  signals:
+    void Siguiente();
+    void ShowQuestionText();
 
   private:
     int printOglError(const char file[], int line, const char func[]);
@@ -38,6 +41,7 @@ class MyGLWidget : public BL2GLWidget {
     void modelTransformCupra();
     void modelTransformBackground(glm::vec3 pos, glm::vec3 scale);
     void modelTransformCarretera();
+    void modelTransformLegoman();
 
     void projectTransform();
     void viewTransform(glm::vec3 OBS, glm::vec3 VRP);
@@ -45,14 +49,17 @@ class MyGLWidget : public BL2GLWidget {
 
     void ini_camera();
 
+    void LegoManEnterCar();
+
     QTimer timer;
     float time = 0;
 
-    QTimer timerNextQuestion;
+    //QTimer timerLegoManStart;
 
     Model mCupra;
     Model mBackground;
     Model mCarretera;
+    Model mLegoman;
     
     GLuint projLoc;
     GLuint viewLoc;
@@ -60,6 +67,7 @@ class MyGLWidget : public BL2GLWidget {
     GLuint VAO_Terra;
     GLuint VAO_Background;
     GLuint VAO_Carretera;
+    GLuint VAO_Legoman;
     GLuint normalLoc;
     GLuint vertexLocTerra;
     GLuint colorLocTerra;
@@ -73,6 +81,9 @@ class MyGLWidget : public BL2GLWidget {
     GLuint ondulacionsWaveColor;
 
     bool testActive = false;
+    bool roadMoving = false;
+
+    int lastButtonPressed = -1;
 
     //Terra
     glm::vec3 posicio[24] = {
@@ -175,4 +186,9 @@ class MyGLWidget : public BL2GLWidget {
 
     glm::vec3 posicioCarretera = glm::vec3(0,0.01,0);
     float velocitatCarretera = -0.1;
+
+    glm::vec3 posicioLegoman = glm::vec3(10,0,0);
+    bool legomanMoving = false;
+    float legomanSpeed = 0.04;
+    float escalaLegoman = 1;
 };

@@ -15,4 +15,5 @@ void tractarConf();
 void tractarPag();
 signals:
 void pasarpag();
+void punt(int p);
 };

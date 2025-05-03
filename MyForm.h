@@ -7,10 +7,11 @@ class MyForm : public QWidget
 
   public:
     MyForm (QWidget *parent=0);
-    int pagina;
+    int pagina, punt;
 
   public slots:
     void pas();
+    void puntuacion(const int &t);
   signals:
   void animacion();  
 

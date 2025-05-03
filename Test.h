@@ -14,6 +14,10 @@ struct TestQuestion {
 	string incorrectAnswer1;
 	string incorrectAnswer2;
 
+	string button0;
+	string button1;
+	string button2;
+
 	glm::vec3 camPos;
 	glm::vec3 camRot;
 	float camDist;
@@ -22,16 +26,17 @@ struct TestQuestion {
 void StartTest();
 
 const vector<TestQuestion> questions = {
-	{"Question1", "Correct", "Incorrect", "Incorrect", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
-	{"Question2", "Correct", "Incorrect", "Incorrect", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
-	{"Question3", "Correct", "Incorrect", "Incorrect", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
-	{"Question4", "Correct", "Incorrect", "Incorrect", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
-	{"Question5", "Correct", "Incorrect", "Incorrect", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
-	{"Question6", "Correct", "Incorrect", "Incorrect", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
-	{"Question7", "Correct", "Incorrect", "Incorrect", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
-	{"Question8", "Correct", "Incorrect", "Incorrect", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
-	{"Question9", "Correct", "Incorrect", "Incorrect", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
-	{"Question10", "Correct", "Incorrect", "Incorrect", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
+	{"Question1", "Correct", "Incorrect", "Incorrect", "", "", "", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
+	{"Question2", "Correct", "Incorrect", "Incorrect", "", "", "", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
+	{"Question3", "Correct", "Incorrect", "Incorrect", "", "", "", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
+	{"Question4", "Correct", "Incorrect", "Incorrect", "", "", "", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
+	{"Question5", "Correct", "Incorrect", "Incorrect", "", "", "", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
+	{"Question6", "Correct", "Incorrect", "Incorrect", "", "", "", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
+	{"Question7", "Correct", "Incorrect", "Incorrect", "", "", "", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
+	{"Question8", "Correct", "Incorrect", "Incorrect", "", "", "", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
+	{"Question9", "Correct", "Incorrect", "Incorrect", "", "", "", glm::vec3(0,0,0), glm::vec3(0,0,0), 5 },
 };
 
-void TestQuestionProcedure(int index);
+TestQuestion TestQuestionProcedure(int index);
+
+bool GetQuestionIsCorrect(int questionIndex, int buttonIndex);

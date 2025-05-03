@@ -9,3 +9,5 @@ core
 *.core
 Cupra
 Makefile
+tmp/
+moc_MyRadioButton.cpp

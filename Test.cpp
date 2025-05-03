@@ -2,7 +2,14 @@
 
 using namespace std;
 
-void TestQuestionProcedure(int index) 
+int currentCorrectIndex = -1;
+
+bool GetQuestionIsCorrect(int questionIndex, int buttonIndex) 
+{
+	return buttonIndex == currentCorrectIndex;
+}
+
+TestQuestion TestQuestionProcedure(int index) 
 {
 	TestQuestion question = questions[index];
 
@@ -16,6 +23,20 @@ void TestQuestionProcedure(int index)
 	std::shuffle(answers.begin(), answers.end(), gen);
 
 	cerr << answers[0] << ' ' << answers[1] << ' ' << answers[2] << endl;
+
+	for (int i = 0; i < 3; ++i) {
+		if (answers[i] == question.correctAnswer) {
+			currentCorrectIndex = i;
+		}
+	}
+
+	cout << currentCorrectIndex << endl;
+
+	question.button0 = answers[0];
+	question.button1 = answers[1];
+	question.button2 = answers[2];
+
+	return question;
 }
 
 void StartTest() 
@@ -29,6 +50,4 @@ void StartTest()
 	std::random_device rd;
     std::mt19937 gen(rd());
     std::shuffle(indices.begin(), indices.end(), gen);
-
-	cerr << "dorga" << endl;
 }
