@@ -1,7 +1,6 @@
 // MyGLWidget.h
 #include "BL2GLWidget.h"
 #include "model.h"
-#include "Test.h"
 #include <QTimer>
 
 #define TERRA_SIZE 10

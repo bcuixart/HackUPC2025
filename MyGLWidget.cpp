@@ -32,7 +32,6 @@ void MyGLWidget::StartWidget()
         cam_Expected_Rot_Euler_X = -173 + 180;
         cam_Expected_Rot_Euler_Y = 256;
 
-        StartTest();
         break;
 
     case 1:
