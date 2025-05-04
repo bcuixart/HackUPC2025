@@ -25,10 +25,12 @@ void MyLabel::tractarConf() {
     int p = 0;
     if (ans) {
         setText("Congratulations!!!");
+        setStyleSheet("QLabel {color: rgb(29, 178, 253); font: 20pt \"Sans Serif\";}");
         p = 1;
     }
     else {
         setText("Fail");
+        setStyleSheet("QLabel {color: rgb(255, 0, 0); font: 20pt \"Sans Serif\";}");
         p = 0;
     }
 

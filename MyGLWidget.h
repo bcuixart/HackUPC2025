@@ -17,11 +17,13 @@ class MyGLWidget : public BL2GLWidget {
 
   public slots:
     void heartbeat();
-    void WidgetSlot();
+    void StartWidget();
+    void LegoManWalk2();
+    void LegoManWalk3();
+    void CarMoveTimer();
 
   signals:
     void Siguiente();
-    void ShowQuestionText();
 
   private:
     int printOglError(const char file[], int line, const char func[]);
@@ -49,12 +51,12 @@ class MyGLWidget : public BL2GLWidget {
 
     void ini_camera();
 
-    void LegoManEnterCar();
-
     QTimer timer;
     float time = 0;
 
-    //QTimer timerLegoManStart;
+    QTimer legowalk2Timer;
+    QTimer legowalk3Timer;
+    QTimer carMoveTimer;
 
     Model mCupra;
     Model mBackground;
@@ -189,6 +191,12 @@ class MyGLWidget : public BL2GLWidget {
 
     glm::vec3 posicioLegoman = glm::vec3(10,0,0);
     bool legomanMoving = false;
+    bool legomanMoving2 = false;
+    bool legomanMoving3 = false;
+    bool legomanMoving4 = false;
+    float rotacioYLegoman = -90.0f;
     float legomanSpeed = 0.04;
     float escalaLegoman = 1;
+
+    int signalsRebuts = 0;
 };

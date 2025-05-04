@@ -10,40 +10,76 @@
 MyGLWidget::MyGLWidget(QWidget *parent=0) : BL2GLWidget(parent) {
   connect(&timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
   timer.start(10);
+
+  connect(&legowalk2Timer, SIGNAL(timeout()), this, SLOT(LegoManWalk2()));
+  legowalk2Timer.setSingleShot(true);
+
+  connect(&legowalk3Timer, SIGNAL(timeout()), this, SLOT(LegoManWalk3()));
+  legowalk3Timer.setSingleShot(true);  
+  
+  connect(&carMoveTimer, SIGNAL(timeout()), this, SLOT(CarMoveTimer()));
+  carMoveTimer.setSingleShot(true);
 }
 
-void MyGLWidget::WidgetSlot() 
+void MyGLWidget::StartWidget() 
 {
-  //connect(&timerLegoManStart, SIGNAL(timeout()), this, SLOT(LegoManEnterCar()));
-  //timerLegoManStart.setSingleShot(true);
+  switch (signalsRebuts) {
 
-  testActive = true;
-  legomanMoving = true;
+    case 0:
+        testActive = true;
+        legomanMoving = true;
 
-  cam_Expected_Rot_Euler_X = -173 + 180;
-  cam_Expected_Rot_Euler_Y = 256;
+        cam_Expected_Rot_Euler_X = -173 + 180;
+        cam_Expected_Rot_Euler_Y = 256;
+
+        StartTest();
+        break;
+
+    case 1:
+        legowalk2Timer.start(2000);
+        break;
+
+    case 2:
+        legowalk3Timer.start(2000);
+        break;
+    case 3:
+        carMoveTimer.start(2000);
+
+  }
+
+  ++signalsRebuts;
 
   //timerLegoManStart.start(2000);
-
-  StartTest();
 }
 
-void MyGLWidget::LegoManEnterCar() 
+
+void MyGLWidget::LegoManWalk2() 
 {
-  roadMoving = true;
+    rotacioYLegoman = 180;
 
-  cam_Expected_Rot_Euler_X = -173 + 180;
-  cam_Expected_Rot_Euler_Y = 346 + 180;
+    cam_Expected_Rot_Euler_X = -173 + 180;
+    cam_Expected_Rot_Euler_Y = 346 + 180;
 
-  posicioLegoman = glm::vec3(10,0,0);
+    legomanMoving2 = true;
 }
 
-/*
-void MyGLWidget::QuestionProcedure() 
+void MyGLWidget::LegoManWalk3() 
 {
-    TestQuestionProcedure(0);
+    rotacioYLegoman = 0;
+
+    cam_Expected_Rot_Euler_X = 11;
+    cam_Expected_Rot_Euler_Y = 329;
+
+    legomanMoving3 = true;
 }
-*/
+
+void MyGLWidget::CarMoveTimer() 
+{
+    cam_Expected_Rot_Euler_X = 14;
+    cam_Expected_Rot_Euler_Y = 145;
+
+    roadMoving = true;
+}
 
 int MyGLWidget::printOglError(const char file[], int line, const char func[]) 
 {
@@ -108,8 +144,40 @@ void MyGLWidget::heartbeat()
 
         if (abs(posicioLegoman.x) < 2.5) {
             legomanMoving = false;
-            TestQuestion question = TestQuestionProcedure(0);
-            //LegoManEnterCar();
+            emit Siguiente();
+        }
+    }
+
+    if (legomanMoving2) {
+        posicioLegoman.z -= legomanSpeed;
+
+        if (abs(posicioLegoman.z) > 4) {
+            legomanMoving2 = false;
+            rotacioYLegoman = -90;
+            emit Siguiente();
+        }
+    }
+
+    if (legomanMoving3) {
+        posicioLegoman.z += legomanSpeed;
+
+        if (posicioLegoman.z > .5) {
+            legomanMoving3 = false;
+            legomanMoving4 = true;
+            rotacioYLegoman = -90;
+        }
+    }
+
+    if (legomanMoving4) {
+        posicioLegoman.x -= legomanSpeed;
+
+        posicioLegoman.y += legomanSpeed * 2;
+        escalaLegoman -= 0.03;
+
+        if (abs(posicioLegoman.x) < 1.25) {
+            legomanMoving4 = false;
+            emit Siguiente();
+            posicioLegoman = glm::vec3(100,100,100);
         }
     }
 
@@ -477,7 +545,7 @@ void MyGLWidget::modelTransformLegoman()
 {
   glm::mat4 transform (1.0f);
   transform = glm::translate(transform, posicioLegoman);
-  transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(0,1,0));
+  transform = glm::rotate(transform, glm::radians(rotacioYLegoman), glm::vec3(0,1,0));
   transform = glm::scale(transform, glm::vec3(escalaLegoman));
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
