@@ -10,6 +10,8 @@ MyForm::MyForm (QWidget* parent) : QWidget(parent), timer(new QTimer(this))
   pagina = 0;
   QPixmap pix("./Imagenes/ini.png");
   ui.imageLabel2->setPixmap(pix.scaled(600, 343, Qt::KeepAspectRatio));
+  QPixmap pix2("./Imagenes/HackUPC.png");
+  ui.ImageLabelUPC->setPixmap(pix2.scaled(600 / 2, 343 / 2, Qt::KeepAspectRatio));
   punt = 0;
 }
 

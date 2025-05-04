@@ -55,7 +55,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>60</y>
+           <y>50</y>
            <width>611</width>
            <height>71</height>
           </rect>
@@ -70,9 +70,9 @@
         <widget class="QPushButton" name="startButton">
          <property name="geometry">
           <rect>
-           <x>770</x>
-           <y>190</y>
-           <width>131</width>
+           <x>790</x>
+           <y>70</y>
+           <width>231</width>
            <height>51</height>
           </rect>
          </property>
@@ -81,6 +81,19 @@
          </property>
          <property name="text">
           <string>START</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ImageLabelUPC">
+         <property name="geometry">
+          <rect>
+           <x>800</x>
+           <y>130</y>
+           <width>221</width>
+           <height>231</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>ImageLabel3</string>
          </property>
         </widget>
        </widget>
@@ -436,11 +449,17 @@
         <widget class="QLabel" name="label_3">
          <property name="geometry">
           <rect>
-           <x>410</x>
+           <x>0</x>
            <y>20</y>
-           <width>491</width>
+           <width>1061</width>
            <height>111</height>
           </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
          <property name="styleSheet">
           <string notr="true">font: 75 30pt &quot;Ubuntu Mono&quot;;</string>
@@ -448,13 +467,16 @@
          <property name="text">
           <string>GAME OVER</string>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
         <widget class="QLabel" name="label_fin">
          <property name="geometry">
           <rect>
-           <x>577</x>
+           <x>555</x>
            <y>151</y>
-           <width>241</width>
+           <width>261</width>
            <height>81</height>
           </rect>
          </property>
@@ -468,9 +490,9 @@
         <widget class="QLabel" name="label_6">
          <property name="geometry">
           <rect>
-           <x>390</x>
+           <x>0</x>
            <y>150</y>
-           <width>361</width>
+           <width>1071</width>
            <height>81</height>
           </rect>
          </property>
@@ -478,7 +500,10 @@
           <string notr="true">font: 22pt &quot;Sans Serif&quot;;</string>
          </property>
          <property name="text">
-          <string>Punctuation:   / 3</string>
+          <string>Score:   / 3</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </widget>
