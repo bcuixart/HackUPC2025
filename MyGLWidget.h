@@ -29,6 +29,8 @@ class MyGLWidget : public BL2GLWidget {
 
     void carregaShaders();
     virtual void creaBuffers ();
+    void creaBuffersLegoman();
+    void creaBuffersCupra();
     virtual void initializeGL();
     virtual void paintGL();
 
@@ -62,6 +64,18 @@ class MyGLWidget : public BL2GLWidget {
     Model mCarretera;
     Model mLegoman;
     
+    GLuint getsLighting;
+    GLuint matambLoc;
+    GLuint matdiffLoc;
+    GLuint matspecLoc;
+    GLuint matshinLoc;
+
+    GLuint lightposLoc;
+    GLuint lightcolLoc;
+    GLuint amblightLoc;
+
+    GLuint obsLoc;
+
     GLuint projLoc;
     GLuint viewLoc;
     GLuint VAO_Cupra;
@@ -148,6 +162,14 @@ class MyGLWidget : public BL2GLWidget {
         TERRA_COLOR_FOSC,
     };
 
+    struct LightFocus {
+      glm::vec3 pos;
+      glm::vec3 col;
+    };
+
+    LightFocus focus;
+    glm::vec3 amb_l_col;
+    
     // Camera
     glm::vec3 centre = glm::vec3(0,0.5,0);
     float cam_Distance = 12;
@@ -195,7 +217,7 @@ class MyGLWidget : public BL2GLWidget {
     bool legomanMoving4 = false;
     float rotacioYLegoman = -90.0f;
     float legomanSpeed = 0.04;
-    float escalaLegoman = 1;
+    float escalaLegoman = 0;
 
     int signalsRebuts = 0;
 };
