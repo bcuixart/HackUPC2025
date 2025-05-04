@@ -250,17 +250,30 @@ void MyGLWidget::paintGL ()
   // Esborrem el frame-buffer
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  glUniform1i(teBoira, 1);
+  glUniform1i(teBoira, 0);
   glUniform1i(faOndulacions, 0);
   glUniform1f(ondulacionsTime, time);
+  glUniform1i(getsLighting, 1);
 
   modelTransformCupra ();
   glBindVertexArray (VAO_Cupra);
+  glUniform3fv(lightposLoc, 1, &focus.pos[0]);
+  glUniform3fv(lightcolLoc, 1, &focus.col[0]);
+  glUniform3fv(amblightLoc, 1, &amb_l_col[0]);
+  glUniform3fv(obsLoc, 1, &OBS[0]);
   glDrawArrays(GL_TRIANGLES, 0, mCupra.faces().size() * 3);
+
+  glUniform1i(teBoira, 1);
 
   modelTransformLegoman ();
   glBindVertexArray (VAO_Legoman);
+  glUniform3fv(lightposLoc, 1, &focus.pos[0]);
+  glUniform3fv(lightcolLoc, 1, &focus.col[0]);
+  glUniform3fv(amblightLoc, 1, &amb_l_col[0]);
+  glUniform3fv(obsLoc, 1, &OBS[0]);
   glDrawArrays(GL_TRIANGLES, 0, mLegoman.faces().size() * 3);
+
+  glUniform1i(getsLighting, 0);
 
   modelTransformTerra ();
   glBindVertexArray (VAO_Terra);
@@ -297,38 +310,147 @@ void MyGLWidget::paintGL ()
   glBindVertexArray (0);
 }
 
-void MyGLWidget::creaBuffers () 
-{
+struct Vec3Hash {
+    std::size_t operator()(const glm::vec3& v) const {
+        std::hash<float> hasher;
+        size_t h1 = hasher(v.x);
+        size_t h2 = hasher(v.y);
+        size_t h3 = hasher(v.z);
+        return h1 ^ (h2 << 1) ^ (h3 << 2);
+    }
+};
+
+struct Vec3Equal {
+    bool operator()(const glm::vec3& a, const glm::vec3& b) const {
+        return glm::distance(a,b) < 1e-6f;
+    }
+};
+
+float* compute_vertex_normals(float* vertices, float* normals, int size) {
+    std::unordered_map<glm::vec3, glm::vec3, Vec3Hash, Vec3Equal> vertex_normal;
+    std::unordered_map<glm::vec3, int, Vec3Hash, Vec3Equal> vertex_count;
+    
+    float* result = (float*) malloc(size * sizeof(float));
+
+    for (int i = 0; i < size; i += 3) {
+        glm::vec3 v(vertices[i], vertices[i+1], vertices[i+2]);
+        glm::vec3 n(normals[i], normals[i+1], normals[i+2]);
+        vertex_normal[v] += n;
+        vertex_count[v] += 1;
+    }
+
+    for (int i = 0; i < size; i += 3) {
+        glm::vec3 v(vertices[i], vertices[i+1], vertices[i+2]);
+        glm::vec3 n = glm::normalize(vertex_normal[v] / (float)vertex_count[v]);
+        result[i+0] = n.x;
+        result[i+1] = n.y;
+        result[i+2] = n.z;
+    }
+
+    return result;
+}
+
+void MyGLWidget::creaBuffersCupra() {
+    
     mCupra.load("./Models/Cupra.obj");
 
     // Creació del Vertex Array Object per pintar
     glGenVertexArrays(1, &VAO_Cupra);
     glBindVertexArray(VAO_Cupra);
 
-    GLuint VBO_Cupra[3];
-    glGenBuffers(3, VBO_Cupra);
+    GLuint VBO_Cupra[6];
+    glGenBuffers(6, VBO_Cupra);
+
+    // Vertices:
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Cupra[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size() * 3 * 3, mCupra.VBO_vertices(), GL_STATIC_DRAW);
-
-    // Activem l'atribut vertexLoc
     glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(vertexLoc);
 
+    // Normals:
+    float* normals = compute_vertex_normals(mCupra.VBO_vertices(), mCupra.VBO_normals(), mCupra.faces().size()*3*3);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Cupra[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size() * 3 * 3, mCupra.VBO_matdiff(), GL_STATIC_DRAW);
-
-    // Activem l'atribut colorLoc
-    glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(colorLoc);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_Cupra[2]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size(), mCupra.VBO_normals(), GL_STATIC_DRAW);
-
-    // Activem l'atribut normalLoc
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size()* 3 * 3, normals, GL_STATIC_DRAW);
     glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(normalLoc);
+    
+    // MatAmb:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Cupra[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size() * 3 * 3, mCupra.VBO_matamb(), GL_STATIC_DRAW);
+    glVertexAttribPointer(matambLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matambLoc);
+    
+    // MatDiff:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Cupra[3]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size() * 3 * 3, mCupra.VBO_matdiff(), GL_STATIC_DRAW);
+    glVertexAttribPointer(matdiffLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matdiffLoc);
 
+    // MatSpec:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Cupra[4]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size() * 3 * 3, mCupra.VBO_matspec(), GL_STATIC_DRAW);
+    glVertexAttribPointer(matspecLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matspecLoc);
 
+    // MatShin:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Cupra[5]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mCupra.faces().size() * 3, mCupra.VBO_matshin(), GL_STATIC_DRAW);
+    glVertexAttribPointer(matshinLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matshinLoc);
+}
+
+void MyGLWidget::creaBuffersLegoman() {
+    mLegoman.load("./Models/legoman.obj");
+
+    // Creació del Vertex Array Object per pintar
+    glGenVertexArrays(1, &VAO_Legoman);
+    glBindVertexArray(VAO_Legoman);
+
+    GLuint VBO_Legoman[6];
+    glGenBuffers(6, VBO_Legoman);
+
+    // Vertices:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size() * 3 * 3, mLegoman.VBO_vertices(), GL_STATIC_DRAW);
+    glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(vertexLoc);
+
+    // Normals:
+    float* normals = compute_vertex_normals(mLegoman.VBO_vertices(), mLegoman.VBO_normals(), mLegoman.faces().size()*3*3);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size()* 3 * 3, normals, GL_STATIC_DRAW);
+    glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(normalLoc);
+    
+    // MatAmb:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size() * 3 * 3, mLegoman.VBO_matamb(), GL_STATIC_DRAW);
+    glVertexAttribPointer(matambLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matambLoc);
+    
+    // MatDiff:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[3]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size() * 3 * 3, mLegoman.VBO_matdiff(), GL_STATIC_DRAW);
+    glVertexAttribPointer(matdiffLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matdiffLoc);
+
+    // MatSpec:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[4]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size() * 3 * 3, mLegoman.VBO_matspec(), GL_STATIC_DRAW);
+    glVertexAttribPointer(matspecLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(matspecLoc);
+
+    // MatShin:
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[5]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size() * 3, mLegoman.VBO_matshin(), GL_STATIC_DRAW);
+    glVertexAttribPointer(matshinLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+}
+
+void MyGLWidget::creaBuffers () 
+{
+    creaBuffersCupra();
+    creaBuffersLegoman();
     mBackground.load("./Models/BackgroundLine.obj");
 
     // Creació del Vertex Array Object per pintar
@@ -387,34 +509,6 @@ void MyGLWidget::creaBuffers ()
     glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(normalLoc);
 
-    mLegoman.load("./Models/legoman.obj");
-
-    // Creació del Vertex Array Object per pintar
-    glGenVertexArrays(1, &VAO_Legoman);
-    glBindVertexArray(VAO_Legoman);
-
-    GLuint VBO_Legoman[3];
-    glGenBuffers(3, VBO_Legoman);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size() * 3 * 3, mLegoman.VBO_vertices(), GL_STATIC_DRAW);
-
-    // Activem l'atribut vertexLoc
-    glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(vertexLoc);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size() * 3 * 3, mLegoman.VBO_matdiff(), GL_STATIC_DRAW);
-
-    // Activem l'atribut colorLoc
-    glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(colorLoc);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[2]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mLegoman.faces().size(), mLegoman.VBO_normals(), GL_STATIC_DRAW);
-
-    // Activem l'atribut normalLoc
-    glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(normalLoc);
 
     glBindVertexArray (0);
 
@@ -451,6 +545,10 @@ void MyGLWidget::initializeGL() {
 
     glEnable(GL_DEPTH_TEST);
 
+    focus.pos = glm::vec3(0.0, 10.0, 0.0);
+    focus.col = glm::vec3(1.0, 1.0, 1.0);
+    amb_l_col = glm::vec3(0.05, 0.05, 0.05);
+
     carregaShaders();
     creaBuffers();
     ini_camera();
@@ -461,9 +559,22 @@ void MyGLWidget::carregaShaders() {
 
     projLoc = glGetUniformLocation(program->programId(), "PM");
     viewLoc = glGetUniformLocation(program->programId(), "VM");
+    
     vertexLocTerra = glGetAttribLocation (program->programId(), "vertex");
-    colorLocTerra = glGetAttribLocation (program->programId(), "color");
+    colorLocTerra = glGetAttribLocation (program->programId(), "matdiff");
+    
     normalLoc = glGetAttribLocation (program->programId(), "normal");
+    matdiffLoc = glGetAttribLocation (program->programId(), "matdiff");
+    matambLoc = glGetAttribLocation (program->programId(), "matamb");
+    matspecLoc = glGetAttribLocation (program->programId(), "matspec");
+    matshinLoc = glGetAttribLocation (program->programId(), "matshin");
+
+    getsLighting = glGetUniformLocation (program->programId(), "getsLighting");
+    lightposLoc = glGetUniformLocation (program->programId(), "l_pos");
+    lightcolLoc = glGetUniformLocation (program->programId(), "l_col");
+    amblightLoc = glGetUniformLocation (program->programId(), "amb_l_col");
+    obsLoc = glGetUniformLocation (program->programId(), "obs");
+
     teBoira = glGetUniformLocation (program->programId(), "usesFog");
     faOndulacions = glGetUniformLocation (program->programId(), "doesWaves");
     ondulacionsTime = glGetUniformLocation (program->programId(), "time");
